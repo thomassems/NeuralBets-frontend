@@ -1,0 +1,34 @@
+.header {
+    background-color: black;
+    color: #FFFFFF;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+/* need to change the format of the above padding */
+}
+
+/* .buttons {
+    margin: 20 20px;
+} */
+
+.button {
+    border-radius: 20px;
+    padding: 10px;
+    font-weight: bold;
+    border: 0px;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.signup {
+    background-color: blue;
+    color: #FFFFFF;
+}
+
+.login {
+    background-color: lime;
+    color: #000000;
+}
