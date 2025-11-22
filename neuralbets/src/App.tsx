@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-import HomePage from './pages/homepage';
+import HomePage from './pages/homepage/homepage';
 
 // will contain routing
 function App() {

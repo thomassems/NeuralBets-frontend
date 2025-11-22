@@ -8,9 +8,15 @@
 /* need to change the format of the above padding */
 }
 
-/* .buttons {
-    margin: 20 20px;
-} */
+.title {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  letter-spacing: -0.025em;
+  background-image: linear-gradient(to right, #22d3ee, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 .button {
     border-radius: 20px;
