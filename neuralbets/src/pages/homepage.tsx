@@ -5,7 +5,7 @@ import WelcomeBanner from '../components/WelcomeBanner';
 
 const HomePage = () => {
     return (
-        <div className='bg-black'>
+        <div className='bg-mainblue h-screen'>
             <Header/>
             <WelcomeBanner/>
         </div>
