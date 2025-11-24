@@ -6,7 +6,7 @@ const WelcomeBanner = () => {
             <div className="container mx-auto px-6 pt-20 relative"></div>
             <div className='text-white px-8 pb-20 bg-mainblue'>
                 <h1 className='text-[50px]'><span className='leading-7 tracking-tight bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>LIVE</span> SPORTS ODDS</h1>
-                <h3 className='text-gray-500 text-[22px]'>Simulate Bets with virtual currency on live games.</h3>
+                <h3 className='text-gray-500 text-[22px]'>Your Free Practice Field for Live Sports Betting.</h3>
             </div>
         </div>
     );

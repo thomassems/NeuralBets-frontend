@@ -1,7 +1,6 @@
 const Header = () => {
     return (
-        <>
-        <div className='bg-black text-white flex justify-between items-center px-8 py-2'>
+        <div className='sticky bg-black text-white top-0 flex justify-between items-center px-8 py-2 z-50'>
             <h1 className='bg-gradient-to-r from-[#22d3ee] to-[#c084fc] text-70px font-bold text-transparent
             bg-clip-text text-[20px]'>
                 Neural Bets
@@ -12,8 +11,6 @@ const Header = () => {
                 font-bold py-2 px-4 shadow-lg hover:cursor-pointer'>Register</button>
             </div>
         </div>
-        {/* <div className="w-full h-[0.2px] bg-gray-600 my-4 rounded-lg p-0"></div> */}
-        </>
     );
 }
 

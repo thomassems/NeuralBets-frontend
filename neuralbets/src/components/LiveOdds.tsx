@@ -4,7 +4,13 @@
 // import { getLiveOdds } from "../api/liveOddsApi";
 
 
-// const LiveOdds = () => {
+const LiveOdds = () => {
+    return (
+        <div className='h-[500px]'>
+
+        </div>
+    );
+}
 //     const [liveOdds, setLiveOdds] = useState([]);
 //     const [loading, setLoading] = useState(true);
 //     const [error, setError] = useState<string | null>(null);
@@ -32,6 +38,6 @@
 //     )
 // }
 
-// export default LiveOdds;
+export default LiveOdds;
 
 export {}
