@@ -6,6 +6,7 @@ const Header = () => {
                 Neural Bets
             </h1>
             <div>
+                {/* THESE BUTTONS SHOULD ONLY SHOW UP IF THE USER IS NOT LOGGED IN, OTHERWISE SHOW DIFFERENT ONES ON THE HOME PAGE */}
                 <button className='rounded-[50px] p-4 text-white font-bold hover:cursor-pointer mx-1'>Login</button>
                 <button className='rounded-[50px] bg-gradient-to-r from-[#22d3ee] to-[#c084fc] text-black 
                 font-bold py-2 px-4 shadow-lg hover:cursor-pointer'>Register</button>
