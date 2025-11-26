@@ -1,20 +1,7 @@
 import { Clock } from 'lucide-react';
 import { LiveIndicator } from './LiveIndicator';
-
-interface live_game {
-    id: string,
-    sport_name: string;
-    sport_title: string;
-    home_team: string;
-    home_team_id: string;
-    away_team: string;
-    away_team_id: string;
-    market: string;
-    bookmaker: string;
-    home_team_price: number;
-    away_team_price: number;
-    start_time: string;
-}
+import { live_game } from '../types/Livegame';
+import BetCreator from './BetCreator';
 
 // FOR TESTING
 let games: live_game[];
@@ -107,13 +94,43 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                 priceSpan.classList.add('text-cyan-400');
             }
         }
+        
+        // Check if any bet is selected and show/hide bet-tab accordingly
+        updateBetTabVisibility();
+    }
+ }
+
+ const updateBetTabVisibility = () => {
+    const betTab = document.getElementById('bet-tab');
+    if (!betTab) return;
+    
+    // Get all possible bet button IDs from all games
+    const allBetIds: string[] = [];
+    games.forEach(game => {
+        allBetIds.push(game.home_team_id, game.away_team_id);
+    });
+    
+    // Check if any button is selected (has bg-cyan-400 class)
+    const hasSelectedBet = allBetIds.some(betId => {
+        const button = document.getElementById(betId);
+        return button && button.classList.contains('bg-cyan-400');
+    });
+    
+    // Show or hide bet-tab based on selection
+    if (hasSelectedBet) {
+        betTab.classList.remove('w-0');
+        betTab.classList.add('w-96');
+    } else {
+        betTab.classList.remove('w-96');
+        betTab.classList.add('w-0');
     }
  }
  
  function listGames(games: live_game[]) {
     // will maybe need the BE to send the times as actual times to be used
     return (
-        <ul>
+        <div className='flex justify-between align-center w-full'>
+        <div className='flex-grow'>
             {games.map(game => 
             <div key={game.id} className='text-white m-8'>
                 <div className='display flex justify-between mb-5'>
@@ -149,9 +166,26 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                     </div>
                 </div>
             </div>)}
-        </ul>
+        </div>
+        <div id='bet-tab' className='w-0 transition-all text-white'>
+               <BetCreator games={games} />
+        </div>
+        </div>
     );
  }
+
+// const betCreator =() => {
+    // will be used to create bets. will find all the selected bets and then pass them into a BE api
+    // which we'll then make the data look better
+    // user should be able to select an amount. they should be able to press an x beside bets to remove them
+    // will maybe have to call a separate API to do the math, or can maybe handle this from the FE
+    // 
+// };
+
+const makeBet = () => {
+    // will be on a onClick button which is used to make a bet
+    // BE API will have to verify whether the bet is valid, user has the funds
+};
 
 const LiveOdds = () => {
     return (
