@@ -2,6 +2,7 @@ import { Clock } from 'lucide-react';
 import { LiveIndicator } from './LiveIndicator';
 import { live_game } from '../types/Livegame';
 import BetCreator from './BetCreator';
+import { convertBettingOdds } from '../utils/oddsUtils';
 
 // FOR TESTING
 let games: live_game[];
@@ -15,7 +16,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
           market: 'h2h',
           bookmaker: 'FanDuel',
           home_team_price: 5.2,
-          away_team_price: 1.6,
+          away_team_price: 1.23,
           start_time: '18:00'
  };
 
@@ -157,17 +158,21 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                     <div className='flex items-center space-x-2 m-5'>
                     <button id={game.home_team_id} onClick={() => selectBet(game.home_team_id, game.id)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Home</span>
-                        <span className="text-lg text-cyan-400 font-mono">{game.home_team_price}</span>
+                        <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.home_team_price)}</span>
                     </button>
                     <button id={game.away_team_id} onClick={() => selectBet(game.away_team_id, game.id)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Away</span>
-                        <span className="text-lg text-cyan-400 font-mono">{game.away_team_price}</span>
+                        <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.away_team_price)}</span>
                     </button>
                     </div>
                 </div>
             </div>)}
         </div>
         <div id='bet-tab' className='w-0 transition-all text-white'>
+                {/* WILL NEED TO BE ALTERED TO ONLY PASS IN DATA FOR BETS THAT HAVE BEEN CLICKED
+                MEANING THIS COMPONENT WILL HAvE TO CHANGE WHILE THINGS ARE CLICKED */}
+                {/* WILL NEED A STATE VARIABLE FOR THE SELECTED GAMES AND WILL NEED THEM TO CHANGE
+                AS GAMES CHANGES (selected+unselected) */}
                <BetCreator games={games} />
         </div>
         </div>
