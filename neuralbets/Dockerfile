@@ -16,8 +16,8 @@ FROM nginx:stable-alpine AS production
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-    # Copy the static assets from the builder stage's build output directory
-    COPY --from=builder /app/build /usr/share/nginx/html
+# Copy the static assets from the builder stage's build output directory
+COPY --from=builder /app/build /usr/share/nginx/html
 
 EXPOSE 80
 

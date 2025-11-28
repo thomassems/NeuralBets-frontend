@@ -184,7 +184,9 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                 MEANING THIS COMPONENT WILL HAvE TO CHANGE WHILE THINGS ARE CLICKED */}
                 {/* WILL NEED A STATE VARIABLE FOR THE SELECTED GAMES AND WILL NEED THEM TO CHANGE
                 AS GAMES CHANGES (selected+unselected) */}
-               <BetCreator games={games} />
+               <BetCreator games={games}
+                           selectedBets={selectedBets} 
+                            />
         </div>
         </div>
     );

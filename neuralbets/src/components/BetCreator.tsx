@@ -4,13 +4,14 @@ import { ParlayPayout } from './ParlayPayout';
 
 interface BetCreatorProps {
     games: live_game[];
+    selectedBets: any;
 }
 
 const removeBet = () => {
 
 }
 
-const BetCreator = ({ games }: BetCreatorProps) => {
+const BetCreator = ({ games, selectedBets }: BetCreatorProps) => {
     return (
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
             <div className='flex items-center flex-col mt-5'>
@@ -53,7 +54,8 @@ const BetCreator = ({ games }: BetCreatorProps) => {
                 />
             </div>
             <ParlayPayout
-                totalOdds={'+520'}
+                games={games}
+                selectedBets={selectedBets}
                 payout={28.35}
                 profit={22.35}
             />

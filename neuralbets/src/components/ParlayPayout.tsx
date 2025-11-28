@@ -1,5 +1,8 @@
+import { calculateTotalMarketOdds } from "../utils/oddsUtils";
+
 interface ParlayPayoutProps {
-    totalOdds: string;
+    games: any;
+    selectedBets: any;
     payout: number; 
     profit: number;
 }
@@ -8,7 +11,9 @@ const removeBet = () => {
 
 }
 
-export const ParlayPayout = ({totalOdds, payout, profit}: ParlayPayoutProps) => {
+export const ParlayPayout = ({games, selectedBets, payout, profit}: ParlayPayoutProps) => {
+    let totalOdds = calculateTotalMarketOdds(games, selectedBets);
+
     return (
         <div className='mx-5 w-full px-10'>
             <div className='flex justify-between w-full text-sm bg-gradient-to-r from-gray-900/20 to-gray-900/10 border border-cyan-500/10 p-5 rounded-xl'>
