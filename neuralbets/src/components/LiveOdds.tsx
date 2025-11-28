@@ -3,6 +3,7 @@ import { LiveIndicator } from './LiveIndicator';
 import { live_game } from '../types/Livegame';
 import BetCreator from './BetCreator';
 import { convertBettingOdds } from '../utils/oddsUtils';
+import { useState } from 'react';
 
 // FOR TESTING
 let games: live_game[];
@@ -36,7 +37,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
 
  games = [game1, game2];
 
- const selectBet = (betId: string, gameId: string) => {    
+ const selectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any) => {    
     // Find the game to get both team IDs
     const game = games.find(g => g.id === gameId);
     if (!game) return;
@@ -75,6 +76,12 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
             // Then select this button
             element.classList.remove(...unselectedClasses);
             element.classList.add(...selectedClasses);
+
+            const newSet = new Set(selectedBets);
+            newSet.delete(otherButtonId);
+            newSet.add(betId);
+            setSelectedBets(newSet);
+            console.log(newSet);
             
             if (priceSpan) {
                 priceSpan.classList.remove('text-cyan-400');
@@ -84,6 +91,11 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
             // Unselecting this button
             element.classList.remove(...selectedClasses);
             element.classList.add(...unselectedClasses);
+
+            const newSet = new Set(selectedBets);
+            newSet.delete(betId);
+            setSelectedBets(newSet);
+            console.log(newSet);
             
             // Update spans back to original colors
             if (labelSpan) {
@@ -127,8 +139,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     }
  }
  
- function listGames(games: live_game[]) {
-    // will maybe need the BE to send the times as actual times to be used
+ function listGames(games: live_game[], selectedBets: any, setSelectedBets:any) {
     return (
         <div className='flex justify-between align-center w-full'>
         <div className='flex-grow'>
@@ -156,11 +167,11 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                         </div>
                     </div>
                     <div className='flex items-center space-x-2 m-5'>
-                    <button id={game.home_team_id} onClick={() => selectBet(game.home_team_id, game.id)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
+                    <button id={game.home_team_id} onClick={() => selectBet(game.home_team_id, game.id, selectedBets, setSelectedBets)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Home</span>
                         <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.home_team_price)}</span>
                     </button>
-                    <button id={game.away_team_id} onClick={() => selectBet(game.away_team_id, game.id)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
+                    <button id={game.away_team_id} onClick={() => selectBet(game.away_team_id, game.id, selectedBets, setSelectedBets)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Away</span>
                         <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.away_team_price)}</span>
                     </button>
@@ -193,10 +204,12 @@ const makeBet = () => {
 };
 
 const LiveOdds = () => {
+    const [selectedBets, setSelectedBets] = useState(new Set());
+
     return (
         <div className='mb-24 pb-6'>
             <ul>
-                {listGames(games)}
+                {listGames(games, selectedBets, setSelectedBets)}
             </ul>
         </div>
     );
