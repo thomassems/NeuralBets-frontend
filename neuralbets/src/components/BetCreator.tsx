@@ -1,7 +1,9 @@
 import { live_game } from '../types/Livegame';
-import { convertBettingOdds, getGamesBetOn } from '../utils/oddsUtils';
+import { convertBettingOdds, getGamesBetOn} from '../utils/oddsUtils';
 import { ParlayPayout } from './ParlayPayout';
 import { unselectBet } from './LiveOdds';
+import { PlaceBet } from './PlaceBet';
+import { useState } from 'react';
 
 interface BetCreatorProps {
     games: live_game[];
@@ -18,10 +20,9 @@ const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
     unselectBet(gameId);
 }
 
-// will ahve to update params passed into this
 const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
     let gamesBetOn = getGamesBetOn(games, selectedBets);
-    // need some sort of function to get the team the user's betting on 
+    const [isBetConfirmed, setIsBetConfirmed] = useState(false);
 
     return (
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
@@ -79,7 +80,13 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 selectedBets={selectedBets}
                 betAmount={betAmount}
             />
-            <button className='mt-8 bg-cyan-500 p-5 w-full mb-0 hover:cursor-pointer'>Confirm Bet</button>
+            <div id='confirm-bet-id' className='text-center text-xs mt-4 hidden'>
+                <p></p>
+            </div>
+            <button onClick={() => {
+               setIsBetConfirmed(true);
+               PlaceBet(isBetConfirmed, setIsBetConfirmed, betAmount);
+            }}className='mt-4 bg-cyan-500 p-5 w-full mb-0 hover:cursor-pointer'>Confirm Bet</button>
             </div>
         </div>
     )

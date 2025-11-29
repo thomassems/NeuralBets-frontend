@@ -73,3 +73,7 @@ export const convertBettingOdds = (decimalOdds: number) => {
  export const calculatePotentialProfit = (payout:string, betAmount:number) => {
     return ((+payout) - betAmount).toFixed(2);
  };
+
+ export const verifyBet = (amount: number) => {
+
+ }
