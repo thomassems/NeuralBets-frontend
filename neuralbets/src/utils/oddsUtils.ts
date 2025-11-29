@@ -1,5 +1,5 @@
 export const convertBettingOdds = (decimalOdds: number) => {
-    if (decimalOdds == 1.0) {
+    if (decimalOdds === 1.0) {
         return '-';
     }
     if (decimalOdds < 2.00) {
@@ -33,13 +33,13 @@ export const convertBettingOdds = (decimalOdds: number) => {
     console.log('calculatetotalmarketodds called');
     const odds = calculateDecimalTotalOdds(games, selectedBets);
     console.log(selectedBets);
-    return convertBettingOdds(odds);
+    return [convertBettingOdds(odds), odds];
  }
 
- export const calculateExpectedPayout = () => {
-
+ export const calculateExpectedPayout = (odds: any, betAmount: number) => {
+    return (odds * betAmount).toFixed(2);
  };
 
- export const calculatePotentialProfit = () => {
-
+ export const calculatePotentialProfit = (payout:string, betAmount:number) => {
+    return ((+payout) - betAmount).toFixed(2);
  };

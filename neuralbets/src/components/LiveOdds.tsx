@@ -113,6 +113,10 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     }
  }
 
+ const unselectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any) => {
+
+ }
+
  const updateBetTabVisibility = () => {
     const betTab = document.getElementById('bet-tab');
     if (!betTab) return;
@@ -139,7 +143,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     }
  }
  
- function listGames(games: live_game[], selectedBets: any, setSelectedBets:any) {
+ function listGames(games: live_game[], selectedBets: any, setSelectedBets:any, betAmount: number, setBetAmount: any) {
     return (
         <div className='flex justify-between align-center w-full'>
         <div className='flex-grow'>
@@ -186,6 +190,9 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                 AS GAMES CHANGES (selected+unselected) */}
                <BetCreator games={games}
                            selectedBets={selectedBets} 
+                           setSelectedBets={setSelectedBets}
+                           betAmount={betAmount}
+                           setBetAmount={setBetAmount}
                             />
         </div>
         </div>
@@ -207,11 +214,12 @@ const makeBet = () => {
 
 const LiveOdds = () => {
     const [selectedBets, setSelectedBets] = useState(new Set());
+    const [betAmount, setBetAmount] = useState(0);
 
     return (
         <div className='mb-24 pb-6'>
             <ul>
-                {listGames(games, selectedBets, setSelectedBets)}
+                {listGames(games, selectedBets, setSelectedBets, betAmount, setBetAmount)}
             </ul>
         </div>
     );

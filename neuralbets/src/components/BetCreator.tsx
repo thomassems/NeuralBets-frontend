@@ -5,13 +5,20 @@ import { ParlayPayout } from './ParlayPayout';
 interface BetCreatorProps {
     games: live_game[];
     selectedBets: any;
+    betAmount: number;
+    setBetAmount: any;
+    setSelectedBets: any;
 }
 
-const removeBet = () => {
-
+const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
+    const newSet = new Set(selectedBets);
+    newSet.delete(gameId)
+    setSelectedBets(newSet);
 }
 
-const BetCreator = ({ games, selectedBets }: BetCreatorProps) => {
+const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
+    // selected games, 
+
     return (
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
             <div className='flex items-center flex-col mt-5'>
@@ -27,7 +34,7 @@ const BetCreator = ({ games, selectedBets }: BetCreatorProps) => {
                                 <div className='text-sm'>{game.home_team} ML</div>
                                 <p className='text-cyan-500 my-1'>Odds: <strong>{convertBettingOdds(game.home_team_price)}</strong></p>
                             </div>
-                            <button onClick={removeBet} className='mt-2 text-md text-xl font-semibold text-gray-500 hover:text-gray-300 focus:outline-none'>
+                            <button onClick={() => removeBet(selectedBets, setSelectedBets, game.home_team_id)} className='mt-2 text-md text-xl font-semibold text-gray-500 hover:text-gray-300'>
                                 &times;
                             </button>
                         </div>
@@ -51,13 +58,17 @@ const BetCreator = ({ games, selectedBets }: BetCreatorProps) => {
                     className="block w-full py-2 pl-2 pr-4 text-white 
                            bg-gray-900/50 placeholder:text-white
                            border-0 focus:ring-0 focus:outline-none rounded-r-lg"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
+                        min="0"
+                        step="1"
+                        required
                 />
             </div>
             <ParlayPayout
                 games={games}
                 selectedBets={selectedBets}
-                payout={28.35}
-                profit={22.35}
+                betAmount={betAmount}
             />
             <button className='mt-8 bg-cyan-500 p-5 w-full mb-0 hover:cursor-pointer'>Confirm Bet</button>
             </div>
