@@ -1,11 +1,16 @@
 import { verifyBet } from "../utils/oddsUtils"; 
 
-export const PlaceBet = (isBetConfirmed: any, setIsBetConfirmed: any, betAmount: any) => {
-    setIsBetConfirmed(false);
+export const PlaceBet = (betAmount: any, gamesBetOnLength: number) => {
     const element = document.getElementById('confirm-bet-id');
     if (betAmount == 0){
          if (element) {
             element.textContent = 'To confirm your wager, please enter a bet amount greater than $0.00.';
+            element.classList.remove('hidden');
+         }
+    }
+    else if (gamesBetOnLength == 0){
+        if (element) {
+            element.textContent = 'Bet slip is empty, please select at least one bet.';
             element.classList.remove('hidden');
          }
     }

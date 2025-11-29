@@ -22,7 +22,6 @@ const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
 
 const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
     let gamesBetOn = getGamesBetOn(games, selectedBets);
-    const [isBetConfirmed, setIsBetConfirmed] = useState(false);
 
     return (
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
@@ -118,8 +117,7 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 <p></p>
             </div>
             <button onClick={() => {
-               setIsBetConfirmed(true);
-               PlaceBet(isBetConfirmed, setIsBetConfirmed, betAmount);
+               PlaceBet(betAmount, gamesBetOn.length);
             }}className='mt-4 bg-cyan-500 p-5 w-full mb-0 hover:cursor-pointer'>Confirm Bet</button>
             </div>
         </div>
