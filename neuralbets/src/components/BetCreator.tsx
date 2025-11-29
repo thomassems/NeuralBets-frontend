@@ -28,7 +28,7 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
             <div className='flex items-center flex-col mt-5'>
                 <h1 className='text-cyan-500 text-xl'>Parlay Builder</h1>
-                <h2 className='text-gray-500 text-xs'>2 Selections</h2>
+                <h2 className='text-gray-500 text-xs'>{gamesBetOn.length} Selections</h2>
                 <div className=''>
                     {gamesBetOn.map(game => 
                     <div key={game.game_id} className='m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl'> 
@@ -66,12 +66,46 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                            border-0 focus:ring-0 focus:outline-none rounded-r-lg"
                         value={betAmount}
                         onChange={(e) => {
-                            const newValue = parseFloat(e.target.value);
-                            const positiveValue = Math.max(newValue, 0);
-                            setBetAmount(positiveValue)}
-                        }
+                            const value = e.target.value;
+                            if (value === '') {
+                                setBetAmount('');
+                                return;
+                            }
+                            
+                            const decimalIndex = value.indexOf('.');
+                            if (decimalIndex !== -1) {
+                                const decimalPart = value.substring(decimalIndex + 1);
+                                if (decimalPart.length > 2) {
+                                    const truncatedValue = value.substring(0, decimalIndex + 3);
+                                    const numValue = parseFloat(truncatedValue);
+                                    if (!isNaN(numValue)) {
+                                        setBetAmount(Math.max(numValue, 0));
+                                    }
+                                    return;
+                                }
+                            }
+                            
+                            const validPattern = /^\d*\.?\d{0,2}$/;
+                            if (!validPattern.test(value)) {
+                                return;
+                            }
+                            
+                            const numValue = parseFloat(value);
+                            if (isNaN(numValue)) {
+                                return;
+                            }
+                            const positiveValue = Math.max(numValue, 0);
+                            setBetAmount(positiveValue);
+                        }}
+                        onBlur={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (!isNaN(value)) {
+                                const roundedValue = Math.round(Math.max(value, 0) * 100) / 100;
+                                setBetAmount(roundedValue);
+                            }
+                        }}
                         min="0"
-                        step="1"
+                        step="0.01"
                         required
                 />
             </div>

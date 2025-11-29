@@ -37,7 +37,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
 
  games = [game1, game2];
 
- const selectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any) => {    
+ const selectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any, setBetAmount: any) => {    
     // Find the game to get both team IDs
     console.log('selectBet called');
     const game = games.find(g => g.id === gameId);
@@ -110,7 +110,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
         }
         
         // Check if any bet is selected and show/hide bet-tab accordingly
-        updateBetTabVisibility();
+        updateBetTabVisibility(setBetAmount);
     }
  }
 
@@ -136,7 +136,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     }
  }
 
- const updateBetTabVisibility = () => {
+ const updateBetTabVisibility = (setBetAmount: any) => {
     const betTab = document.getElementById('bet-tab');
     if (!betTab) return;
     
@@ -159,6 +159,9 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     } else {
         betTab.classList.remove('w-96');
         betTab.classList.add('w-0');
+        setBetAmount(0);
+        const element = document.getElementById('confirm-bet-id');
+        element?.classList.add('hidden');
     }
  }
  
@@ -190,11 +193,11 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
                         </div>
                     </div>
                     <div className='flex items-center space-x-2 m-5'>
-                    <button id={game.home_team_id} onClick={() => selectBet(game.home_team_id, game.id, selectedBets, setSelectedBets)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
+                    <button id={game.home_team_id} onClick={() => selectBet(game.home_team_id, game.id, selectedBets, setSelectedBets, setBetAmount)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Home</span>
                         <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.home_team_price)}</span>
                     </button>
-                    <button id={game.away_team_id} onClick={() => selectBet(game.away_team_id, game.id, selectedBets, setSelectedBets)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
+                    <button id={game.away_team_id} onClick={() => selectBet(game.away_team_id, game.id, selectedBets, setSelectedBets, setBetAmount)} className='flex-col h-20 w-24 bg-gradient-to-br from-cyan-500/10 to-purple-600/5 hover:from-cyan-500/20 hover:to-purple-600/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex rounded-md justify-center'>
                         <span className="text-xs text-gray-500 mb-1">Away</span>
                         <span className="text-lg text-cyan-400 font-mono">{convertBettingOdds(game.away_team_price)}</span>
                     </button>
