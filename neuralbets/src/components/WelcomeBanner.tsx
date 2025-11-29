@@ -10,7 +10,7 @@ const WelcomeBanner = () => {
                 <div className='flex space-x-4'>
                     <LiveIndicator/>
                     {/* WILL HAVE TO UPDATE THIS TO MAKE IT ACCURATE */}
-                    <span className="text-sm text-gray-400">4 Live Events</span>
+                    <span className="text-sm text-gray-400">2 Live Events</span>
                 </div>
                 <h1 className='text-[50px]'><span className='leading-7 tracking-tight bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>LIVE</span> SPORTS ODDS</h1>
                 <h3 className='text-gray-500 text-[22px]'>Your Free Practice Field for Live Sports Betting.</h3>

@@ -1,6 +1,7 @@
 import { live_game } from '../types/Livegame';
-import { convertBettingOdds } from '../utils/oddsUtils';
+import { convertBettingOdds, getGamesBetOn } from '../utils/oddsUtils';
 import { ParlayPayout } from './ParlayPayout';
+import { unselectBet } from './LiveOdds';
 
 interface BetCreatorProps {
     games: live_game[];
@@ -14,10 +15,13 @@ const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
     const newSet = new Set(selectedBets);
     newSet.delete(gameId)
     setSelectedBets(newSet);
+    unselectBet(gameId);
 }
 
+// will ahve to update params passed into this
 const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
-    // selected games, 
+    let gamesBetOn = getGamesBetOn(games, selectedBets);
+    // need some sort of function to get the team the user's betting on 
 
     return (
         <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
@@ -25,16 +29,17 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 <h1 className='text-cyan-500 text-xl'>Parlay Builder</h1>
                 <h2 className='text-gray-500 text-xs'>2 Selections</h2>
                 <div className=''>
-                    {games.map(game => 
-                    <div key={game.id} className='m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl'> 
+                    {gamesBetOn.map(game => 
+                    <div key={game.game_id} className='m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl'> 
                         <div className='flex justify-between'>
                             <div>
                                 <div className='text-xs text-gray-500 my-1'>{game.home_team} vs {game.away_team}</div>
                                 {/* SHOULD ONLY USE IF h2h */}
-                                <div className='text-sm'>{game.home_team} ML</div>
-                                <p className='text-cyan-500 my-1'>Odds: <strong>{convertBettingOdds(game.home_team_price)}</strong></p>
+                                <div className='text-sm'>{game.team_bet_on} ML</div>
+                                <p className='text-cyan-500 my-1'>Odds: <strong>{convertBettingOdds(game.team_odds)}</strong></p>
                             </div>
-                            <button onClick={() => removeBet(selectedBets, setSelectedBets, game.home_team_id)} className='mt-2 text-md text-xl font-semibold text-gray-500 hover:text-gray-300'>
+                            {/* will have to get the actual betId */}
+                            <button onClick={() => removeBet(selectedBets, setSelectedBets, game.team_bet_on_id)} className='mt-2 text-md text-xl font-semibold text-gray-500 hover:text-gray-300'>
                                 &times;
                             </button>
                         </div>
@@ -59,7 +64,11 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                            bg-gray-900/50 placeholder:text-white
                            border-0 focus:ring-0 focus:outline-none rounded-r-lg"
                         value={betAmount}
-                        onChange={(e) => setBetAmount(e.target.value)}
+                        onChange={(e) => {
+                            const newValue = parseFloat(e.target.value);
+                            const positiveValue = Math.max(newValue, 0);
+                            setBetAmount(positiveValue)}
+                        }
                         min="0"
                         step="1"
                         required

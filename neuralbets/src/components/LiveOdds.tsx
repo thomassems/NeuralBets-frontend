@@ -39,6 +39,7 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
 
  const selectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any) => {    
     // Find the game to get both team IDs
+    console.log('selectBet called');
     const game = games.find(g => g.id === gameId);
     if (!game) return;
     
@@ -113,8 +114,26 @@ const game1: live_game = {id: 'cc4352fd8dac47d053790493642f3540',
     }
  }
 
- const unselectBet = (betId: string, gameId: string, selectedBets: any, setSelectedBets: any) => {
+ export const unselectBet = (betId: string) => {
+        const element = document.getElementById(betId);
+        if (element){
+            const selectedClasses = 'bg-cyan-400 text-white'.split(' ');
+            const unselectedClasses = 'bg-gradient-to-br from-cyan-500/10 to-purple-600/5'.split(' ');
+            element.classList.remove(...selectedClasses);
+            element.classList.add(...unselectedClasses);
 
+            const labelSpan = element.querySelector('span:first-child');
+            const priceSpan = element.querySelector('span:last-child');
+        
+            if (labelSpan) {
+                labelSpan.classList.remove('text-white');
+                labelSpan.classList.add('text-gray-500');
+            }
+            if (priceSpan) {
+                priceSpan.classList.remove('text-white');
+                priceSpan.classList.add('text-cyan-400');
+        }
+    }
  }
 
  const updateBetTabVisibility = () => {

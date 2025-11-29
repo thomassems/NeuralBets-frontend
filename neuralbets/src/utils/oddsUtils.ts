@@ -1,3 +1,33 @@
+import { live_game } from "../types/Livegame";
+
+export const getGamesBetOn = (games: live_game[], selectedBets:any) => {
+    let gamesBetOn = [];
+
+    for (let i: number = 0; i < games.length; i++){
+        if (selectedBets.has(games[i].away_team_id)) {
+            gamesBetOn.push({
+                game_id: games[i].id,
+                home_team: games[i].home_team,
+                away_team: games[i].away_team,
+                team_odds: games[i].away_team_price,
+                team_bet_on: games[i].away_team,
+                team_bet_on_id: games[i].away_team_id
+            })
+        } 
+        if (selectedBets.has(games[i].home_team_id)){
+            gamesBetOn.push({
+                game_id: games[i].id,
+                home_team: games[i].home_team,
+                away_team: games[i].away_team,
+                team_odds: games[i].home_team_price,
+                team_bet_on: games[i].home_team,
+                team_bet_on_id: games[i].home_team_id
+            });
+        }
+    }
+    return gamesBetOn;
+}
+
 export const convertBettingOdds = (decimalOdds: number) => {
     if (decimalOdds === 1.0) {
         return '-';
