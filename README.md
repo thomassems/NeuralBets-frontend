@@ -1,0 +1,238 @@
+# NeuralBets
+
+A modern, paper trading sports betting platform that allows users to simulate bets, practice betting strategies, and participate in the excitement of sports betting without risking real money. NeuralBets provides a risk-free environment where users can experience live odds, create parlay bets, and track their simulated betting performance using real-time game data and dynamic odds calculations.
+
+## 🎯 Project Overview
+
+NeuralBets was built to solve a pretty common problem: you're hanging out with friends, everyone's talking about their bets and placing wagers, but you don't want to risk real money. It can feel pretty awkward being the only one sitting out. So I created this platform so you can:
+
+- **Join in on the betting conversations** with your friends without actually putting money on the line
+- **Practice your betting strategies** and see what works (or what doesn't) in a safe environment
+- **Learn the ropes** of how sports betting actually works using real odds and game data
+- **Get in on the fun** of betting without the stress of potentially losing real cash
+
+NeuralBets provides a complete paper trading experience that mirrors real betting platforms, featuring:
+
+- **Real-time odds updates** for live games across multiple sports
+- **Intuitive parlay builder** that allows users to combine multiple bets with instant payout calculations
+- **Simulated bet tracking** to monitor strategy performance over time
+- **Modern, responsive UI** built with cutting-edge web technologies
+- **Seamless user experience** with smooth animations and real-time feedback
+
+## 🚀 What the Platform Offers
+
+### Core Features
+
+#### 1. **Live Odds Display**
+- Real-time sports betting odds for multiple leagues (NFL, NHL, and more)
+- Live game indicators showing active matches
+- Support for multiple bookmakers (currently integrated with FanDuel)
+- Decimal odds with automatic conversion to American format (+/-)
+- Game start times and sport categorization
+- All odds are real-world data for authentic simulation experience
+
+#### 2. **Interactive Parlay Builder**
+- Select multiple bets from different games to create a parlay
+- Real-time calculation of combined odds and potential payouts
+- Visual bet slip with easy bet removal
+- Dynamic bet amount input with validation (simulated funds)
+- Instant profit calculations based on selected bets
+- Practice complex betting strategies without financial risk
+
+#### 3. **Bet Management**
+- One-click bet selection with visual feedback
+- Automatic bet slip expansion when bets are selected
+- Bet validation before submission (simulated balance checks)
+- Clear visual indicators for selected vs. unselected bets
+- Support for head-to-head (H2H) betting markets
+- Track all simulated bets and outcomes
+
+#### 4. **Payout Calculator**
+- Real-time parlay odds calculation
+- Expected payout display based on bet amount (simulated)
+- Potential profit calculations
+- Support for both positive and negative American odds
+- Learn how odds and payouts work in real betting scenarios
+
+#### 5. **Modern User Interface**
+- Dark theme with cyan/purple gradient accents
+- Smooth transitions and hover effects
+- Responsive design that works across devices
+- Glassmorphism effects with backdrop blur
+- Intuitive navigation and layout
+
+## 🛠️ Tech Stack
+
+### Frontend Framework & Language
+- **React 19.2.0** - Modern UI library for building component-based interfaces
+- **TypeScript 4.9.5** - Type-safe JavaScript for improved code quality and developer experience
+- **React Router DOM 7.9.6** - Client-side routing for single-page application navigation
+
+### Styling & UI
+- **Tailwind CSS 3.4.18** - Utility-first CSS framework for rapid UI development
+- **PostCSS 8.5.6** - CSS processing with autoprefixer for cross-browser compatibility
+- **Lucide React 0.554.0** - Modern icon library for consistent iconography
+
+### Build Tools & Development
+- **Create React App 5.0.1** - Zero-configuration build tooling
+- **React Scripts** - Pre-configured build, test, and development scripts
+- **Web Vitals 2.1.4** - Performance monitoring and optimization
+
+### Testing
+- **React Testing Library** - Component testing utilities
+- **Jest** - JavaScript testing framework
+- **@testing-library/user-event** - User interaction simulation for tests
+
+### Deployment & Infrastructure
+- **Docker** - Containerization for consistent deployment
+- **Nginx** - Production web server for serving static assets
+- **Node.js 20** - Runtime environment for build processes
+
+### API Integration
+- RESTful API integration with backend services
+- Proxy configuration for development environment
+- Async/await patterns for data fetching
+
+## 📁 Project Structure
+
+```
+NeuralBets-frontend/
+└── neuralbets/
+    ├── src/
+    │   ├── api/              # API integration layer
+    │   │   └── liveOddsApi.ts
+    │   ├── components/       # Reusable React components
+    │   │   ├── BetCreator.tsx
+    │   │   ├── Footer.tsx
+    │   │   ├── Header.tsx
+    │   │   ├── LiveIndicator.tsx
+    │   │   ├── LiveOdds.tsx
+    │   │   ├── ParlayPayout.tsx
+    │   │   ├── PlaceBet.tsx
+    │   │   └── WelcomeBanner.tsx
+    │   ├── features/         # Feature-based modules
+    │   │   ├── auth/
+    │   │   └── home/
+    │   ├── pages/            # Page components
+    │   │   └── homepage.tsx
+    │   ├── types/            # TypeScript type definitions
+    │   │   └── Livegame.tsx
+    │   ├── utils/            # Utility functions
+    │   │   └── oddsUtils.ts
+    │   ├── App.tsx           # Main application component
+    │   └── index.tsx         # Application entry point
+    ├── public/               # Static assets
+    ├── Dockerfile           # Container configuration
+    ├── nginx.conf           # Nginx server configuration
+    ├── tailwind.config.js   # Tailwind CSS configuration
+    └── package.json         # Dependencies and scripts
+```
+
+## 🎨 Key Technical Implementations
+
+### Odds Conversion System
+- Automatic conversion between decimal and American odds formats
+- Support for both positive (+) and negative (-) American odds
+- Real-time odds display with proper formatting
+
+### State Management
+- React hooks (useState) for local component state
+- Set-based data structures for efficient bet selection tracking
+- Controlled components for form inputs
+
+### Bet Calculation Engine
+- Multiplicative parlay odds calculation
+- Real-time payout computation
+- Profit calculation with precision handling
+- Input validation for bet amounts (decimal precision, minimum values)
+
+### Component Architecture
+- Modular, reusable component design
+- Separation of concerns (UI, logic, utilities)
+- Type-safe props with TypeScript interfaces
+- Event-driven interactions with proper state updates
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20 or higher
+- npm or yarn package manager
+- Docker (optional, for containerized deployment)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd NeuralBets-frontend/neuralbets
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+The application will open at `http://localhost:3000`
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+This creates an optimized production build in the `build/` directory.
+
+### Running Tests
+
+```bash
+npm test
+```
+
+### Docker Deployment
+
+Build and run the Docker container:
+
+```bash
+cd neuralbets
+docker build -t neuralbets-frontend .
+docker run -p 80:80 neuralbets-frontend
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+- Backend API proxy is configured in `package.json` (default: `http://localhost:8082`)
+- Update the proxy URL to match your backend server configuration
+
+### Tailwind Configuration
+Custom colors and theme extensions are defined in `tailwind.config.js`:
+- `mainblue`: Primary background color (#07050D)
+- Custom gradient utilities for UI elements
+
+## 🎯 Future Enhancements
+
+- User authentication and account management
+- Real-time WebSocket integration for live odds updates
+- Additional sports and betting markets
+- Comprehensive bet history and performance tracking
+- Simulated portfolio management and balance tracking
+- Strategy analytics and performance metrics
+- Social features to compare strategies with friends
+- Mobile app development
+- Advanced analytics and betting insights
+- Leaderboards and achievements for simulated betting success
+
+
+## 👤 Author
+
+Developed as a portfolio project demonstrating modern web development practices, real-time data handling, and complex state management in React applications. NeuralBets provides a safe, educational platform for users to engage with sports betting culture without financial risk.
+
+---
+
+*Built with ❤️ using React, TypeScript, and Tailwind CSS*
+
