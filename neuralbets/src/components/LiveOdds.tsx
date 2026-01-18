@@ -192,19 +192,6 @@ import { useState, useMemo, useEffect } from 'react';
     );
  }
 
-// const betCreator =() => {
-    // will be used to create bets. will find all the selected bets and then pass them into a BE api
-    // which we'll then make the data look better
-    // user should be able to select an amount. they should be able to press an x beside bets to remove them
-    // will maybe have to call a separate API to do the math, or can maybe handle this from the FE
-    // 
-// };
-
-const makeBet = () => {
-    // will be on a onClick button which is used to make a bet
-    // BE API will have to verify whether the bet is valid, user has the funds
-};
-
 interface LiveOddsProps {
     games: live_game[];
     loading: boolean;
@@ -265,6 +252,7 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
             betTab.classList.remove('w-96');
             betTab.classList.add('w-0');
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLeague]);
     
     if (loading) {
