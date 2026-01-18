@@ -1,6 +1,10 @@
 import { LiveIndicator } from "./LiveIndicator";
 
-const WelcomeBanner = () => {
+interface WelcomeBannerProps {
+    liveEventsCount: number;
+}
+
+const WelcomeBanner = ({ liveEventsCount }: WelcomeBannerProps) => {
     return (
         <div className="relative overflow-hidden border-b border-cyan-500/10">
             <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-purple-500/5 to-transparent"></div>
@@ -9,8 +13,7 @@ const WelcomeBanner = () => {
             <div className='text-white px-8 pb-20 bg-mainblue'>
                 <div className='flex space-x-4'>
                     <LiveIndicator/>
-                    {/* WILL HAVE TO UPDATE THIS TO MAKE IT ACCURATE */}
-                    <span className="text-sm text-gray-400">2 Live Events</span>
+                    <span className="text-sm text-gray-400">{liveEventsCount} Live Event{liveEventsCount !== 1 ? 's' : ''}</span>
                 </div>
                 <h1 className='text-[50px]'><span className='leading-7 tracking-tight bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>LIVE</span> SPORTS ODDS</h1>
                 <h3 className='text-gray-500 text-[22px]'>Your Free Practice Field for Live Sports Betting.</h3>

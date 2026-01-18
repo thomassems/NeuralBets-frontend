@@ -2,7 +2,7 @@ import { live_game } from '../types/Livegame';
 import { convertBettingOdds, getGamesBetOn} from '../utils/oddsUtils';
 import { ParlayPayout } from './ParlayPayout';
 import { unselectBet } from './LiveOdds';
-import { PlaceBet } from './PlaceBet';
+import AuthNotification from './AuthNotification';
 import { useState } from 'react';
 
 interface BetCreatorProps {
@@ -22,12 +22,57 @@ const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
 
 const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
     let gamesBetOn = getGamesBetOn(games, selectedBets);
+    const [showAuthNotification, setShowAuthNotification] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    // Check if user is logged in (you can replace this with actual auth check)
+    const isLoggedIn = false; // TODO: Replace with actual auth state
+
+    const handlePlaceBet = () => {
+        // Clear previous error
+        setErrorMessage('');
+        const element = document.getElementById('confirm-bet-id');
+        
+        // Validate bet amount (check for 0, empty, or falsy values)
+        if (!betAmount || betAmount <= 0) {
+            setErrorMessage('To confirm your wager, please enter a bet amount greater than $0.00.');
+            if (element) {
+                element.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        // Validate selections
+        if (gamesBetOn.length === 0) {
+            setErrorMessage('Bet slip is empty, please select at least one bet.');
+            if (element) {
+                element.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        // Check if user is logged in
+        if (!isLoggedIn) {
+            setShowAuthNotification(true);
+            return;
+        }
+        
+        // If all validations pass, place the bet
+        console.log('Placing bet:', { betAmount, gamesBetOn });
+        // TODO: Actual bet placement logic here
+    };
 
     return (
-        <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
-            <div className='flex items-center flex-col mt-5'>
-                <h1 className='text-cyan-500 text-xl'>Parlay Builder</h1>
-                <h2 className='text-gray-500 text-xs'>{gamesBetOn.length} Selections</h2>
+        <>
+            <AuthNotification 
+                isVisible={showAuthNotification}
+                onClose={() => setShowAuthNotification(false)}
+            />
+            
+            <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
+                <div className='flex items-center flex-col mt-5'>
+                    <h1 className='text-cyan-500 text-xl'>Parlay Builder</h1>
+                    <h2 className='text-gray-500 text-xs'>{gamesBetOn.length} Selections</h2>
                 <div className=''>
                     {gamesBetOn.map(game => 
                     <div key={game.game_id} className='m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl'> 
@@ -113,14 +158,23 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 selectedBets={selectedBets}
                 betAmount={betAmount}
             />
-            <div id='confirm-bet-id' className='text-center text-xs mt-4 hidden'>
-                <p></p>
-            </div>
-            <button onClick={() => {
-               PlaceBet(betAmount, gamesBetOn.length);
-            }}className='mt-4 bg-cyan-500 p-5 w-full mb-0 hover:cursor-pointer'>Confirm Bet</button>
+            
+            {/* Error message display */}
+            {errorMessage && (
+                <div id='confirm-bet-id' className='text-center text-xs mt-4 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 animate-fadeIn'>
+                    <p className='text-red-400'>{errorMessage}</p>
+                </div>
+            )}
+            
+            <button 
+                onClick={handlePlaceBet}
+                className='mt-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 p-5 w-full mb-0 hover:cursor-pointer transition-all duration-200 font-semibold text-white transform hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-cyan-500/50'
+            >
+                Confirm Bet
+            </button>
             </div>
         </div>
+        </>
     )
 };
 
