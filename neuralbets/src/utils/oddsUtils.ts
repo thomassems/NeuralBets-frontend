@@ -29,19 +29,27 @@ export const getGamesBetOn = (games: live_game[], selectedBets:any) => {
 }
 
 export const convertBettingOdds = (decimalOdds: number) => {
+    // Handle edge cases
+    if (decimalOdds === 0 || !decimalOdds) {
+        return '-';
+    }
     if (decimalOdds === 1.0) {
         return '-';
     }
+    
+    // Negative odds (favorites) - decimal odds less than 2.00
     if (decimalOdds < 2.00) {
         const negativeOdds = Math.round(-100 / (decimalOdds - 1));
-        return `${negativeOdds}`;
+        // If somehow we get a positive value, force it to be negative
+        return negativeOdds > 0 ? `-${negativeOdds}` : `${negativeOdds}`;
     }
+    // Positive odds (underdogs) - decimal odds 2.00 or greater
     else {
         const positiveOdds = Math.round((decimalOdds - 1) * 100);
+        // Always ensure positive odds have a + sign
         return `+${positiveOdds}`;
     }
-
- };
+};
 
  export const calculateDecimalTotalOdds = (games:any, selectedBets:any) => {
     let totalOdds: number = 1.0;

@@ -2,6 +2,7 @@
  * Format sport name to display properly
  * - Removes redundant suffixes (e.g., "Ahl", "Nba", etc.)
  * - Changes "Icehockey" to "Hockey"
+ * - Changes "Americanfootball" to "Football"
  */
 export const formatSportName = (sportName: string): string => {
     if (!sportName) return '';
@@ -9,9 +10,13 @@ export const formatSportName = (sportName: string): string => {
     // Split by space and take only the first word
     const firstWord = sportName.split(' ')[0];
     
-    // Replace "Icehockey" with "Hockey"
+    // Handle special cases
     if (firstWord.toLowerCase() === 'icehockey') {
         return 'Hockey';
+    }
+    
+    if (firstWord.toLowerCase() === 'americanfootball') {
+        return 'Football';
     }
     
     // Capitalize first letter and return

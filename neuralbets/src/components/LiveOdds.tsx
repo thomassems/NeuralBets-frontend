@@ -146,14 +146,21 @@ import { useState, useMemo, useEffect } from 'react';
                     <div className='text-white text-[20px] text-bold'>{formatSportName(game.sport_name)}</div>
                 </div>  
                 <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl'>
-                    <div className='display flex justify-between mx-5 my-4'>    
-                        <div className='flex space-x-5 align-center'>
-                            <div className='inline border-[#c084fc] border text-[#c084fc] rounded-md px-1 py-0.5'>{game.sport_title}</div>
+                    <div className='flex justify-between items-start mx-5 my-4'>    
+                        <div className='flex space-x-3 items-center'>
+                            <div className='border-[#c084fc] border text-[#c084fc] rounded-md px-2 py-1 text-xs'>{game.sport_title}</div>
                             <LiveIndicator/>
                         </div>
-                        <div className='flex space-x-1 items-center'>
-                            <Clock className="h-3.5 w-3.5" />
-                            <div>{formatTimeToEST(game.start_time)}</div>
+                        <div className='flex flex-col items-end gap-1'>
+                            <div className='flex space-x-1 items-center text-sm'>
+                                <Clock className="h-3.5 w-3.5" />
+                                <div>{formatTimeToEST(game.start_time)}</div>
+                            </div>
+                            {game.bookmaker && (
+                                <div className='text-xs font-semibold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>
+                                    {game.bookmaker}
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className='flex items-center justify-between p-5 border-b border-white/5'>
@@ -257,15 +264,18 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
     
     if (loading) {
         return (
-            <div className='mb-24 pb-6 text-white text-center'>
-                <p className='text-xl'>Loading live odds...</p>
+            <div className='min-h-[400px] flex items-center justify-center text-white'>
+                <div className='flex flex-col items-center space-y-4'>
+                    <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400'></div>
+                    <p className='text-xl'>Loading live odds...</p>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className='mb-24 pb-6 text-white text-center'>
+            <div className='min-h-[400px] flex items-center justify-center text-white'>
                 <p className='text-xl text-red-400'>{error}</p>
             </div>
         );
@@ -273,7 +283,7 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
 
     if (games.length === 0) {
         return (
-            <div className='mb-24 pb-6 text-white text-center'>
+            <div className='min-h-[400px] flex items-center justify-center text-white'>
                 <p className='text-xl'>No live odds available at the moment.</p>
             </div>
         );
