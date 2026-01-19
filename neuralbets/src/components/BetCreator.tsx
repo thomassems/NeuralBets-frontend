@@ -2,8 +2,9 @@ import { live_game } from '../types/Livegame';
 import { convertBettingOdds, getGamesBetOn} from '../utils/oddsUtils';
 import { ParlayPayout } from './ParlayPayout';
 import { unselectBet } from './LiveOdds';
-import AuthNotification from './AuthNotification';
+import AuthModal from './AuthModal';
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface BetCreatorProps {
     games: live_game[];
@@ -22,13 +23,14 @@ const removeBet = (selectedBets: any, setSelectedBets: any, gameId: string) => {
 
 const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmount}: BetCreatorProps) => {
     let gamesBetOn = getGamesBetOn(games, selectedBets);
-    const [showAuthNotification, setShowAuthNotification] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [newestBetId, setNewestBetId] = useState<string | null>(null);
     const prevBetCountRef = useRef(0);
-
-    // Check if user is logged in (you can replace this with actual auth check)
-    const isLoggedIn = false; // TODO: Replace with actual auth state
+    
+    // Get authentication state
+    const { currentUser } = useAuth();
+    const isLoggedIn = !!currentUser;
     
     // Auto-scroll and animate ONLY when bets are added (not removed)
     useEffect(() => {
@@ -91,7 +93,7 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
         
         // Check if user is logged in
         if (!isLoggedIn) {
-            setShowAuthNotification(true);
+            setShowAuthModal(true);
             return;
         }
         
@@ -102,9 +104,10 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
 
     return (
         <>
-            <AuthNotification 
-                isVisible={showAuthNotification}
-                onClose={() => setShowAuthNotification(false)}
+            <AuthModal 
+                isVisible={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                initialMode='login'
             />
             
             <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm rounded-xl'>
