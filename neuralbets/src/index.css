@@ -15,3 +15,36 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Custom scrollbar for bet-tab and its scrollable content */
+#bet-tab::-webkit-scrollbar,
+#bet-tab > div::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+#bet-tab::-webkit-scrollbar-track,
+#bet-tab > div::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(7, 5, 13, 0.5);
+  border-radius: 4px;
+}
+
+#bet-tab::-webkit-scrollbar-thumb,
+#bet-tab > div::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgba(6, 182, 212, 0.3), rgba(168, 85, 247, 0.3));
+  border-radius: 4px;
+}
+
+#bet-tab::-webkit-scrollbar-thumb:hover,
+#bet-tab > div::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(6, 182, 212, 0.5), rgba(168, 85, 247, 0.5));
+}
+
+/* Bet pop animation glow effect */
+.animate-betPop {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4), 0 0 40px rgba(6, 182, 212, 0.2);
+  animation: betPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

@@ -3,7 +3,7 @@ import { convertBettingOdds, getGamesBetOn} from '../utils/oddsUtils';
 import { ParlayPayout } from './ParlayPayout';
 import { unselectBet } from './LiveOdds';
 import AuthNotification from './AuthNotification';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface BetCreatorProps {
     games: live_game[];
@@ -24,9 +24,46 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
     let gamesBetOn = getGamesBetOn(games, selectedBets);
     const [showAuthNotification, setShowAuthNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [newestBetId, setNewestBetId] = useState<string | null>(null);
+    const prevBetCountRef = useRef(0);
 
     // Check if user is logged in (you can replace this with actual auth check)
     const isLoggedIn = false; // TODO: Replace with actual auth state
+    
+    // Auto-scroll and animate ONLY when bets are added (not removed)
+    useEffect(() => {
+        const currentBetCount = gamesBetOn.length;
+        const prevBetCount = prevBetCountRef.current;
+        
+        // Only animate if we're ADDING a bet (count increased)
+        if (currentBetCount > prevBetCount && currentBetCount > 0) {
+            // Track the newest bet
+            const latestBet = gamesBetOn[gamesBetOn.length - 1];
+            setNewestBetId(latestBet.game_id);
+            
+            // Find the scrollable parent container
+            const betTab = document.getElementById('bet-tab');
+            const scrollableContainer = betTab?.querySelector('.overflow-y-auto');
+            
+            if (scrollableContainer) {
+                // Smooth scroll to bottom
+                setTimeout(() => {
+                    scrollableContainer.scrollTo({
+                        top: scrollableContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 50);
+            }
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                setNewestBetId(null);
+            }, 600);
+        }
+        
+        // Update previous count for next comparison
+        prevBetCountRef.current = currentBetCount;
+    }, [selectedBets, gamesBetOn.length]);
 
     const handlePlaceBet = () => {
         // Clear previous error
@@ -69,13 +106,18 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 onClose={() => setShowAuthNotification(false)}
             />
             
-            <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl mt-20 mr-10'>
+            <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm rounded-xl'>
                 <div className='flex items-center flex-col mt-5'>
                     <h1 className='text-cyan-500 text-xl'>Parlay Builder</h1>
                     <h2 className='text-gray-500 text-xs'>{gamesBetOn.length} Selections</h2>
                 <div className=''>
                     {gamesBetOn.map(game => 
-                    <div key={game.game_id} className='m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl'> 
+                    <div 
+                        key={game.game_id} 
+                        className={`m-5 bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 p-5 text-xs rounded-xl transition-all ${
+                            newestBetId === game.game_id ? 'animate-betPop' : ''
+                        }`}
+                    > 
                         <div className='flex justify-between'>
                             <div>
                                 <div className='text-xs text-gray-500 my-1'>{game.home_team} vs {game.away_team}</div>

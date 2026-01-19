@@ -138,8 +138,8 @@ import { useState, useMemo, useEffect } from 'react';
  function listGames(games: live_game[], selectedBets: any, setSelectedBets:any, betAmount: number, setBetAmount: any) {
 
     return (
-        <div className='flex justify-between align-center w-full'>
-        <div className='flex-grow'>
+        <div className='flex justify-start gap-4 w-full'>
+        <div className='flex-grow max-w-4xl'>
             {games.map(game => 
             <div key={game.id} className='text-white m-8'>
                 <div className='display flex justify-between mb-5'>
@@ -183,17 +183,15 @@ import { useState, useMemo, useEffect } from 'react';
                 </div>
             </div>)}
         </div>
-        <div id='bet-tab' className='w-0 transition-all text-white'>
-                {/* WILL NEED TO BE ALTERED TO ONLY PASS IN DATA FOR BETS THAT HAVE BEEN CLICKED
-                MEANING THIS COMPONENT WILL HAvE TO CHANGE WHILE THINGS ARE CLICKED */}
-                {/* WILL NEED A STATE VARIABLE FOR THE SELECTED GAMES AND WILL NEED THEM TO CHANGE
-                AS GAMES CHANGES (selected+unselected) */}
+        <div id='bet-tab' className='w-0 transition-all text-white sticky top-20 h-fit'>
+            <div className='max-h-[calc(100vh-6rem)] overflow-y-auto'>
                <BetCreator games={games}
                            selectedBets={selectedBets} 
                            setSelectedBets={setSelectedBets}
                            betAmount={betAmount}
                            setBetAmount={setBetAmount}
                             />
+            </div>
         </div>
         </div>
     );

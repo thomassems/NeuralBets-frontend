@@ -15,6 +15,7 @@ module.exports = {
         'pulse': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'scaleIn': 'scaleIn 0.3s ease-out',
         'bounce': 'bounce 1s infinite',
+        'betPop': 'betPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
       keyframes: {
         fadeIn: {
@@ -32,6 +33,22 @@ module.exports = {
         bounce: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        betPop: {
+          '0%': { 
+            opacity: '0', 
+            transform: 'scale(0.8) translateY(20px)',
+            borderColor: 'rgba(6, 182, 212, 0.1)'
+          },
+          '50%': { 
+            transform: 'scale(1.05)',
+            borderColor: 'rgba(6, 182, 212, 0.6)'
+          },
+          '100%': { 
+            opacity: '1', 
+            transform: 'scale(1) translateY(0)',
+            borderColor: 'rgba(6, 182, 212, 0.1)'
+          },
         },
       }
     },
