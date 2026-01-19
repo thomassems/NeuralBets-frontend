@@ -63,6 +63,7 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
         
         // Update previous count for next comparison
         prevBetCountRef.current = currentBetCount;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedBets, gamesBetOn.length]);
 
     const handlePlaceBet = () => {
