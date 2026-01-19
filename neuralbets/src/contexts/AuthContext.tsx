@@ -6,8 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
-  updateProfile
+  signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -95,26 +94,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Load existing user data
     setUserData(userDoc.data() as UserData);
-  };
-
-  // Complete Google signup with age verification
-  const completeGoogleSignup = async (age: number) => {
-    if (!currentUser) throw new Error('No user logged in');
-    if (age < 18) {
-      await signOut(auth);
-      throw new Error('You must be 18 or older to create an account');
-    }
-
-    const userDocData: UserData = {
-      uid: currentUser.uid,
-      email: currentUser.email,
-      displayName: currentUser.displayName,
-      age: age,
-      createdAt: new Date().toISOString()
-    };
-
-    await setDoc(doc(db, 'users', currentUser.uid), userDocData);
-    setUserData(userDocData);
   };
 
   // Logout
