@@ -79,6 +79,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login with Google
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
     const userCredential = await signInWithPopup(auth, provider);
     const user = userCredential.user;
 
@@ -87,13 +90,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      // New Google user - need to collect age
-      // This will be handled by the UI showing an age verification modal
-      throw new Error('AGE_VERIFICATION_REQUIRED');
+      // New Google user - create profile with placeholder age
+      const userDocData: UserData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        age: 0, // Needs verification
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(doc(db, 'users', user.uid), userDocData);
+      setUserData(userDocData);
+    } else {
+      setUserData(userDoc.data() as UserData);
     }
-
-    // Load existing user data
-    setUserData(userDoc.data() as UserData);
   };
 
   // Logout
@@ -104,17 +113,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Load user data from Firestore
   const loadUserData = async (user: User) => {
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (userDoc.exists()) {
-      setUserData(userDoc.data() as UserData);
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        setUserData(userDoc.data() as UserData);
+      }
+    } catch (error: any) {
+      console.error('Error loading user data:', error);
+      // If offline or Firebase not configured, still allow the user to be logged in
+      // They just won't have extended profile data
+      if (error.code === 'unavailable' || error.message?.includes('offline')) {
+        console.warn('Firebase is offline or not configured. User data not loaded.');
+      }
     }
   };
 
   // Listen for auth state changes
   useEffect(() => {
+    let isSubscribed = true;
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!isSubscribed) return;
+      
       setCurrentUser(user);
       
       if (user) {
@@ -124,9 +146,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       setLoading(false);
+    }, (error) => {
+      if (!isSubscribed) return;
+      console.error('Auth state error:', error);
+      setLoading(false);
     });
 
-    return unsubscribe;
+    // Quick timeout to show app even if auth is slow
+    const timeout = setTimeout(() => {
+      if (isSubscribed && loading) {
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => {
+      isSubscribed = false;
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   const value: AuthContextType = {
@@ -141,7 +178,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

@@ -31,10 +31,12 @@ const HomePage = () => {
     }, []);
 
     return (
-        <div className='bg-mainblue'>
+        <div className='bg-mainblue min-h-screen flex flex-col'>
             <Header/>
             <WelcomeBanner liveEventsCount={games.length}/>
-            <LiveOdds games={games} loading={loading} error={error}/>
+            <div className='flex-grow'>
+                <LiveOdds games={games} loading={loading} error={error}/>
+            </div>
             <Footer/>
         </div>
     );

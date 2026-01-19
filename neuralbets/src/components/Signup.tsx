@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UserPlus, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, AlertCircle } from 'lucide-react';
 
 interface SignupProps {
   onClose: () => void;
@@ -11,11 +11,56 @@ const Signup: React.FC<SignupProps> = ({ onClose, onSwitchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [age, setAge] = useState('');
+  const [month, setMonth] = useState('');
+  const [day, setDay] = useState('');
+  const [year, setYear] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { signup, loginWithGoogle } = useAuth();
+  const { signup, loginWithGoogle, currentUser } = useAuth();
+
+  // Clear loading state if user is logged in (after redirect)
+  useEffect(() => {
+    if (currentUser) {
+      setLoading(false);
+      onClose();
+    }
+  }, [currentUser, onClose]);
+
+  // Generate arrays for dropdowns
+  const months = [
+    { value: '1', label: 'January' },
+    { value: '2', label: 'February' },
+    { value: '3', label: 'March' },
+    { value: '4', label: 'April' },
+    { value: '5', label: 'May' },
+    { value: '6', label: 'June' },
+    { value: '7', label: 'July' },
+    { value: '8', label: 'August' },
+    { value: '9', label: 'September' },
+    { value: '10', label: 'October' },
+    { value: '11', label: 'November' },
+    { value: '12', label: 'December' }
+  ];
+
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+
+  // Calculate age from date of birth
+  const calculateAge = (birthMonth: string, birthDay: string, birthYear: string): number => {
+    const today = new Date();
+    const birthDate = new Date(parseInt(birthYear), parseInt(birthMonth) - 1, parseInt(birthDay));
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,19 +74,28 @@ const Signup: React.FC<SignupProps> = ({ onClose, onSwitchToLogin }) => {
       return setError('Password must be at least 6 characters');
     }
 
-    const ageNum = parseInt(age);
-    if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
-      return setError('Please enter a valid age');
+    // Validate date of birth
+    if (!month || !day || !year) {
+      return setError('Please select your complete date of birth');
     }
 
-    if (ageNum < 18) {
+    // Validate date is valid
+    const birthDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    if (isNaN(birthDate.getTime())) {
+      return setError('Please enter a valid date of birth');
+    }
+
+    // Calculate age
+    const age = calculateAge(month, day, year);
+
+    if (age < 18) {
       return setError('You must be 18 or older to create an account');
     }
     
     try {
       setError('');
       setLoading(true);
-      await signup(email, password, ageNum);
+      await signup(email, password, age);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
@@ -57,14 +111,21 @@ const Signup: React.FC<SignupProps> = ({ onClose, onSwitchToLogin }) => {
       await loginWithGoogle();
       onClose();
     } catch (err: any) {
-      if (err.message === 'AGE_VERIFICATION_REQUIRED') {
-        // Handle age verification for new Google users
-        setError('Please complete age verification below, then click Sign Up with Google again');
+      console.error('Google signup error:', err);
+      setLoading(false);
+      
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Signup cancelled. Please try again.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup blocked. Please allow popups for this site.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('Domain not authorized. Please contact support.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        // User clicked button multiple times, ignore
+        setError('');
       } else {
         setError(err.message || 'Failed to sign up with Google');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,22 +174,55 @@ const Signup: React.FC<SignupProps> = ({ onClose, onSwitchToLogin }) => {
         </div>
 
         <div>
-          <label htmlFor='signup-age' className='block text-sm font-medium text-gray-300 mb-2'>
-            Age <span className='text-xs text-gray-500'>(Must be 18+)</span>
+          <label className='block text-sm font-medium text-gray-300 mb-2'>
+            Date of Birth <span className='text-xs text-gray-500'>(Must be 18+)</span>
           </label>
-          <div className='relative'>
-            <Calendar className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
-            <input
-              id='signup-age'
-              type='number'
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              required
-              min='1'
-              max='120'
-              className='w-full pl-10 pr-4 py-3 bg-mainblue border-2 border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all'
-              placeholder='18'
-            />
+          <div className='flex gap-2'>
+            <div className='flex-1'>
+              <select
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                required
+                className='w-full px-3 py-3 bg-mainblue border-2 border-purple-500/30 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all appearance-none cursor-pointer'
+              >
+                <option value='' className='bg-mainblue'>Month</option>
+                {months.map(m => (
+                  <option key={m.value} value={m.value} className='bg-mainblue'>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className='w-24'>
+              <select
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+                required
+                className='w-full px-3 py-3 bg-mainblue border-2 border-purple-500/30 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all appearance-none cursor-pointer'
+              >
+                <option value='' className='bg-mainblue'>Day</option>
+                {days.map(d => (
+                  <option key={d} value={d} className='bg-mainblue'>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className='w-28'>
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                required
+                className='w-full px-3 py-3 bg-mainblue border-2 border-purple-500/30 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all appearance-none cursor-pointer'
+              >
+                <option value='' className='bg-mainblue'>Year</option>
+                {years.map(y => (
+                  <option key={y} value={y} className='bg-mainblue'>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 
@@ -13,7 +13,15 @@ const Login: React.FC<LoginProps> = ({ onClose, onSwitchToSignup }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, currentUser } = useAuth();
+
+  // Clear loading state if user is logged in (after redirect)
+  useEffect(() => {
+    if (currentUser) {
+      setLoading(false);
+      onClose();
+    }
+  }, [currentUser, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,13 +45,21 @@ const Login: React.FC<LoginProps> = ({ onClose, onSwitchToSignup }) => {
       await loginWithGoogle();
       onClose();
     } catch (err: any) {
-      if (err.message === 'AGE_VERIFICATION_REQUIRED') {
-        setError('New Google users need to verify age. Please use Sign Up.');
+      console.error('Google login error:', err);
+      setLoading(false);
+      
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Login cancelled. Please try again.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup blocked. Please allow popups for this site.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('Domain not authorized. Please contact support.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        // User clicked button multiple times, ignore this error
+        setError('');
       } else {
         setError(err.message || 'Failed to log in with Google');
       }
-    } finally {
-      setLoading(false);
     }
   };
 

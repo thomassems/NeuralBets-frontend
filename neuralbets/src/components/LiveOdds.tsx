@@ -260,104 +260,108 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLeague]);
     
-    if (loading) {
-        return (
-            <div className='min-h-[400px] flex items-center justify-center text-white'>
-                <div className='flex flex-col items-center space-y-4'>
-                    <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400'></div>
-                    <p className='text-xl'>Loading live odds...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className='min-h-[400px] flex items-center justify-center text-white'>
-                <p className='text-xl text-red-400'>{error}</p>
-            </div>
-        );
-    }
-
-    if (games.length === 0) {
-        return (
-            <div className='min-h-[400px] flex items-center justify-center text-white'>
-                <p className='text-xl'>No live odds available at the moment.</p>
-            </div>
-        );
-    }
+    // Show structure immediately, even while loading
+    const showContent = !loading || games.length > 0;
     
     return (
         <div className='mb-24 pb-6'>
-            {/* League Filter Section */}
-            <div className='mx-8 mb-8 mt-4'>
-                <div className='relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-cyan-500/40'>
-                    {/* Animated background gradient */}
-                    <div className='absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-purple-500/0 animate-pulse'></div>
-                    
-                    <div className='relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-                        <div className='flex items-center gap-3'>
-                            <div className='flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30'>
-                                <svg className='w-5 h-5 text-cyan-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z' />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className='text-white font-semibold text-lg'>Filter by League</h3>
-                                <p className='text-gray-400 text-xs'>
-                                    {selectedLeague === 'all' 
-                                        ? `Showing all ${games.length} events`
-                                        : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'} in ${selectedLeague}`
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div className='flex items-center gap-3'>
-                            <div className='relative group'>
-                                <select
-                                    id='league-filter'
-                                    value={selectedLeague}
-                                    onChange={(e) => setSelectedLeague(e.target.value)}
-                                    className='appearance-none bg-mainblue border-2 border-cyan-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 min-w-[200px]'
-                                >
-                                    <option value='all' className='bg-mainblue text-white'>All Leagues</option>
-                                    {leagues.map(league => {
-                                        const count = games.filter(g => g.sport_title === league).length;
-                                        return (
-                                            <option key={league} value={league} className='bg-mainblue text-white'>
-                                                {league} ({count})
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cyan-400 pointer-events-none transition-transform duration-200 group-hover:translate-y-[-40%]' />
-                            </div>
-                            
-                            {selectedLeague !== 'all' && (
-                                <button
-                                    onClick={() => setSelectedLeague('all')}
-                                    className='px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:from-cyan-500/20 hover:to-purple-500/20 hover:border-cyan-500/50 hover:text-cyan-300 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 animate-fadeIn'
-                                >
-                                    Clear
-                                </button>
-                            )}
-                        </div>
+            {/* Loading State - shown inline, doesn't block page */}
+            {loading && games.length === 0 && (
+                <div className='mx-8 mb-8 mt-4 flex items-center justify-center'>
+                    <div className='flex flex-col items-center space-y-4'>
+                        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400'></div>
+                        <p className='text-white text-xl'>Loading live odds...</p>
                     </div>
                 </div>
-            </div>
+            )}
 
-            {/* Games List */}
-            {filteredGames.length === 0 ? (
-                <div className='text-white text-center mx-8 py-12 animate-fadeIn'>
-                    <div className='inline-block p-6 rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-900/30 border border-cyan-500/10'>
-                        <p className='text-lg text-gray-400'>No games available for <span className='text-cyan-400 font-semibold'>{selectedLeague}</span></p>
-                    </div>
+            {/* Error State */}
+            {error && (
+                <div className='mx-8 mb-8 mt-4 flex items-center justify-center'>
+                    <p className='text-red-400 text-xl'>{error}</p>
                 </div>
-            ) : (
-                <ul className='animate-fadeIn'>
-                    {listGames(filteredGames, selectedBets, setSelectedBets, betAmount, setBetAmount)}
-                </ul>
+            )}
+
+            {/* Show content when we have games */}
+            {showContent && games.length > 0 && (
+                <>
+                    {/* League Filter Section */}
+                    <div className='mx-8 mb-8 mt-4'>
+                        <div className='relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-cyan-500/40'>
+                            <div className='absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-purple-500/0 animate-pulse'></div>
+                            
+                            <div className='relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+                                <div className='flex items-center gap-3'>
+                                    <div className='flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30'>
+                                        <svg className='w-5 h-5 text-cyan-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z' />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className='text-white font-semibold text-lg'>Filter by League</h3>
+                                        <p className='text-gray-400 text-xs'>
+                                            {selectedLeague === 'all' 
+                                                ? `Showing all ${games.length} events`
+                                                : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'} in ${selectedLeague}`
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div className='flex items-center gap-3'>
+                                    <div className='relative group'>
+                                        <select
+                                            id='league-filter'
+                                            value={selectedLeague}
+                                            onChange={(e) => setSelectedLeague(e.target.value)}
+                                            className='appearance-none bg-mainblue border-2 border-cyan-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 min-w-[200px]'
+                                        >
+                                            <option value='all' className='bg-mainblue text-white'>All Leagues</option>
+                                            {leagues.map(league => {
+                                                const count = games.filter(g => g.sport_title === league).length;
+                                                return (
+                                                    <option key={league} value={league} className='bg-mainblue text-white'>
+                                                        {league} ({count})
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cyan-400 pointer-events-none transition-transform duration-200 group-hover:translate-y-[-40%]' />
+                                    </div>
+                                    
+                                    {selectedLeague !== 'all' && (
+                                        <button
+                                            onClick={() => setSelectedLeague('all')}
+                                            className='px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:from-cyan-500/20 hover:to-purple-500/20 hover:border-cyan-500/50 hover:text-cyan-300 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 animate-fadeIn'
+                                        >
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Games List */}
+                    {filteredGames.length === 0 ? (
+                        <div className='text-white text-center mx-8 py-12 animate-fadeIn'>
+                            <div className='inline-block p-6 rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-900/30 border border-cyan-500/10'>
+                                <p className='text-lg text-gray-400'>No games available for <span className='text-cyan-400 font-semibold'>{selectedLeague}</span></p>
+                            </div>
+                        </div>
+                    ) : (
+                        <ul className='animate-fadeIn'>
+                            {listGames(filteredGames, selectedBets, setSelectedBets, betAmount, setBetAmount)}
+                        </ul>
+                    )}
+                </>
+            )}
+
+            {/* Empty state when no games and not loading */}
+            {!loading && games.length === 0 && !error && (
+                <div className='mx-8 mb-8 mt-4 flex items-center justify-center'>
+                    <p className='text-white text-xl'>No live odds available at the moment.</p>
+                </div>
             )}
         </div>
     );

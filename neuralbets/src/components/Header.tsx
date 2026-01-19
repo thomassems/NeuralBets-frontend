@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, User } from 'lucide-react';
 import AuthModal from './AuthModal';
@@ -7,6 +7,13 @@ const Header = () => {
     const { currentUser, logout, userData } = useAuth();
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
+    // Auto-close modal when user logs in (e.g., after Google redirect)
+    useEffect(() => {
+        if (currentUser) {
+            setShowAuthModal(false);
+        }
+    }, [currentUser]);
 
     const handleLogout = async () => {
         try {

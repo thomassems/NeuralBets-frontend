@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './Login';
 import Signup from './Signup';
 
@@ -11,6 +11,13 @@ interface AuthModalProps {
 
 const AuthModal = ({ isVisible, onClose, initialMode = 'login' }: AuthModalProps) => {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
+
+  // Update mode when initialMode changes or when modal becomes visible
+  useEffect(() => {
+    if (isVisible) {
+      setMode(initialMode);
+    }
+  }, [isVisible, initialMode]);
 
   if (!isVisible) return null;
 
