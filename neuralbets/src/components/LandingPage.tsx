@@ -5,7 +5,7 @@ import AuthModal from './AuthModal';
 import {
     Trophy, TrendingUp, Sparkles, DollarSign, ArrowRight,
     Bot, BarChart3, Shield, Activity, Layers, Target,
-    Zap, Eye, SlidersHorizontal, ChevronRight
+    Zap, Eye, SlidersHorizontal
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -272,7 +272,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ type: 'spring', stiffness: 80, damping: 20, delay: 0.3 }}
                             >
-                                Place simulated bets with real-time odds. Build custom strategy models. Compete in challenges. All with zero financial risk.
+                                Place simulated bets with real-time odds. Build custom strategy models, compete in challenges, all with zero financial risk.
                             </motion.p>
 
                             <motion.div
@@ -394,19 +394,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                             <Reveal>
                                 <span className='text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-4 block'>Challenges</span>
                                 <h2 className='text-3xl md:text-4xl font-bold text-white mb-5'>
-                                    Set a target.<br/>
-                                    <span className='text-cyan-400'>Prove your strategy.</span>
+                                    Pick Your Challenge,<br/>
+                                    <span className='text-cyan-400'>Prove your strategy</span>
                                 </h2>
                                 <p className='text-gray-400 leading-relaxed mb-8'>
-                                    Challenges give structure to your practice. Pick a starting balance and a target, then trade your way there. Track every bet, every win, every lesson learned. Reset whenever you want to try a new approach.
+                                Challenges give your betting a goal. Start with a set balance and try to hit a target. It's the best way to practice discipline and bankroll management with real stakes (minus the real money). 
                                 </p>
                             </Reveal>
                             <Reveal delay={1}>
                                 <ul className='space-y-4 mb-8'>
                                     {[
-                                        { text: 'Real discipline without real consequences', icon: <Shield className='w-3.5 h-3.5 text-cyan-400' /> },
-                                        { text: 'Tracks P/L, win rate, and target progress', icon: <Target className='w-3.5 h-3.5 text-cyan-400' /> },
-                                        { text: 'Reset anytime — no penalty', icon: <Sparkles className='w-3.5 h-3.5 text-cyan-400' /> },
+                                        { text: 'Structured goals keep you focused', icon: <Shield className='w-3.5 h-3.5 text-cyan-400' /> },
+                                        { text: 'Tracks your P/L, win rate, and progress', icon: <Target className='w-3.5 h-3.5 text-cyan-400' /> },
+                                        { text: 'Reset anytime', icon: <Sparkles className='w-3.5 h-3.5 text-cyan-400' /> },
                                     ].map((item, i) => (
                                         <li key={i} className='flex items-center gap-3 text-gray-300'>
                                             <div className='flex-shrink-0 w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center'>
@@ -480,10 +480,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                             <Reveal>
                                 <span className='text-xs font-semibold uppercase tracking-[0.2em] text-purple-400 mb-4 block'>Betting Models</span>
                                 <h2 className='text-3xl md:text-4xl font-bold text-white mb-5'>
-                                    Go beyond gut feelings.
+                                     Build Your Own Betting Strategy
                                 </h2>
                                 <p className='text-gray-400 leading-relaxed mb-8'>
-                                    Define rules like "only bet when odds exceed +150" or "stick to hockey underdogs." Set your staking strategy — flat, percentage, or Kelly Criterion — then let the model guide your decisions. An AI assistant is always available to help you think through it.
+                                Go beyond gut feelings. Create custom models with conditions that define when and how you bet. Set rules like "only bet when home odds are above +150" or "limit to underdogs in hockey". Then watch how your strategy performs over time.
                                 </p>
                             </Reveal>
                             <Reveal delay={1}>
@@ -491,7 +491,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                     {[
                                         { text: 'Condition-based rules: field, operator, value', icon: <Activity className='w-3.5 h-3.5 text-purple-400' /> },
                                         { text: 'Three staking strategies to choose from', icon: <BarChart3 className='w-3.5 h-3.5 text-purple-400' /> },
-                                        { text: 'AI-powered strategy assistant built in', icon: <Bot className='w-3.5 h-3.5 text-purple-400' /> },
+                                        { text: 'Chat with an AI assistant to refine your approach', icon: <Bot className='w-3.5 h-3.5 text-purple-400' /> },
                                     ].map((item, i) => (
                                         <li key={i} className='flex items-center gap-3 text-gray-300'>
                                             <div className='flex-shrink-0 w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center'>
@@ -583,10 +583,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                 Real-Time Data
                             </span>
                             <h2 className='text-3xl md:text-4xl font-bold text-white mb-4'>
-                                Live odds. Real bookmakers.
+                                Live Odds From Real bookmakers.
                             </h2>
                             <p className='text-gray-400 max-w-lg mx-auto'>
-                                Your practice environment mirrors the real betting landscape, so the skills you build here actually transfer.
+                            We pull odds from real sportsbooks in real time so your practice environment mirrors the actual betting landscape. Filter by sport or league, build parlays, and track your picks.
                             </p>
                         </div>
                     </Reveal>
