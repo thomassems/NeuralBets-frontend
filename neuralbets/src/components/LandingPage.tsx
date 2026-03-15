@@ -40,12 +40,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                 <span className='text-sm text-gray-400'>{liveEventsCount} Live Event{liveEventsCount !== 1 ? 's' : ''} Right Now</span>
                             </div>
                             <h1 className='text-5xl md:text-6xl font-bold leading-tight mb-6'>
-                                <span className='bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>Practice</span> Sports Betting
-                                <br />
+                                <span className='bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'>Practice</span> 
+                                <div className='text-white'>Sports Betting</div>
                                 <span className='text-white'>Without The Risk</span>
                             </h1>
                             <p className='text-gray-400 text-lg md:text-xl leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0'>
-                                Real odds. Simulated money. Build strategies, test models, and compete in challenges — all without risking a cent.
+                                Real odds. Simulated money. Build strategies, test models, and compete in challenges, all without risking a cent.
                             </p>
                             <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start'>
                                 <button
@@ -118,7 +118,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                     <div className='text-center mb-16'>
                         <h2 className='text-3xl md:text-4xl font-bold text-white mb-4'>How It Works</h2>
                         <p className='text-gray-400 max-w-2xl mx-auto'>
-                            Get started in minutes. No credit card, no real money — just pick a challenge and start betting.
+                            Get started in minutes. No credit card, no real money, just pick a challenge and start betting.
                         </p>
                     </div>
 
@@ -421,7 +421,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                     side: 'right',
                                     icon: <Bot className='w-5 h-5 text-cyan-400' />,
                                     title: 'AI Strategy Assistant',
-                                    desc: 'Not sure where to start? Chat with our AI assistant. It can explain betting concepts, help you build models, suggest bankroll strategies, and walk you through parlay math — all tailored to your questions.',
+                                    desc: 'Not sure where to start? Chat with our AI assistant. It can explain betting concepts, help you build models, suggest bankroll strategies, and walk you through parlay math,  to your questions.',
                                     visual: (
                                         <div className='space-y-2'>
                                             <div className='flex justify-end'>
