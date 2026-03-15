@@ -5,7 +5,7 @@ import {
 } from '../types/BettingModel';
 import {
     Play, Pause, FileEdit, Trash2, ChevronDown, ChevronUp,
-    CircleDot, Activity, TrendingUp, TrendingDown, Settings2
+    Activity, Settings2
 } from 'lucide-react';
 
 interface ModelCardProps {

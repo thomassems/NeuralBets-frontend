@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useWallet } from '../contexts/WalletContext';
 import { getTransactions, Transaction } from '../api/walletApi';
 import { Navigate } from 'react-router-dom';
-import { Clock, TrendingUp, TrendingDown, CircleDot, ArrowUpRight, ArrowDownRight, RotateCcw } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, CircleDot, ArrowUpRight, RotateCcw } from 'lucide-react';
 
 const MyBets = () => {
     const { currentUser } = useAuth();
