@@ -206,23 +206,42 @@ interface LiveOddsProps {
 const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
     const [selectedBets, setSelectedBets] = useState(new Set());
     const [betAmount, setBetAmount] = useState(0);
+    const [selectedSport, setSelectedSport] = useState<string>('all');
     const [selectedLeague, setSelectedLeague] = useState<string>('all');
     
-    // Extract unique leagues from games
-    const leagues = useMemo(() => {
-        const uniqueLeagues = new Set(games.map(game => game.sport_title));
-        return Array.from(uniqueLeagues).sort();
+    // Extract unique sports from games
+    const sports = useMemo(() => {
+        const uniqueSports = new Set(games.map(game => formatSportName(game.sport_name)));
+        return Array.from(uniqueSports).sort();
     }, [games]);
     
-    // Filter games based on selected league
-    const filteredGames = useMemo(() => {
-        if (selectedLeague === 'all') {
-            return games;
-        }
-        return games.filter(game => game.sport_title === selectedLeague);
-    }, [games, selectedLeague]);
+    // Extract unique leagues from games (filtered by sport if selected)
+    const leagues = useMemo(() => {
+        const filteredByMaybeSport = selectedSport === 'all' 
+            ? games 
+            : games.filter(game => formatSportName(game.sport_name) === selectedSport);
+        const uniqueLeagues = new Set(filteredByMaybeSport.map(game => game.sport_title));
+        return Array.from(uniqueLeagues).sort();
+    }, [games, selectedSport]);
     
-    // Clear selected bets when league filter changes
+    // Filter games based on selected sport and league
+    const filteredGames = useMemo(() => {
+        let filtered = games;
+        
+        // Filter by sport first
+        if (selectedSport !== 'all') {
+            filtered = filtered.filter(game => formatSportName(game.sport_name) === selectedSport);
+        }
+        
+        // Then filter by league
+        if (selectedLeague !== 'all') {
+            filtered = filtered.filter(game => game.sport_title === selectedLeague);
+        }
+        
+        return filtered;
+    }, [games, selectedSport, selectedLeague]);
+    
+    // Clear selected bets when sport or league filter changes
     useEffect(() => {
         // Clear all bet selections visually
         selectedBets.forEach(betId => {
@@ -258,7 +277,7 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
             betTab.classList.add('w-0');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedLeague]);
+    }, [selectedSport, selectedLeague]);
     
     // Show structure immediately, even while loading
     const showContent = !loading || games.length > 0;
@@ -285,12 +304,12 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
             {/* Show content when we have games */}
             {showContent && games.length > 0 && (
                 <>
-                    {/* League Filter Section */}
+                    {/* Filter Section */}
                     <div className='mx-8 mb-8 mt-4'>
                         <div className='relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-cyan-500/40'>
                             <div className='absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-purple-500/0 animate-pulse'></div>
                             
-                            <div className='relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+                            <div className='relative flex flex-col gap-4'>
                                 <div className='flex items-center gap-3'>
                                     <div className='flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30'>
                                         <svg className='w-5 h-5 text-cyan-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -298,27 +317,55 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className='text-white font-semibold text-lg'>Filter by League</h3>
+                                        <h3 className='text-white font-semibold text-lg'>Filter Events</h3>
                                         <p className='text-gray-400 text-xs'>
-                                            {selectedLeague === 'all' 
+                                            {selectedSport === 'all' && selectedLeague === 'all'
                                                 ? `Showing all ${games.length} events`
-                                                : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'} in ${selectedLeague}`
+                                                : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'}${selectedSport !== 'all' ? ` in ${selectedSport}` : ''}${selectedLeague !== 'all' ? ` - ${selectedLeague}` : ''}`
                                             }
                                         </p>
                                     </div>
                                 </div>
                                 
-                                <div className='flex items-center gap-3'>
+                                <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3'>
+                                    {/* Sport Filter */}
+                                    <div className='relative group'>
+                                        <select
+                                            id='sport-filter'
+                                            value={selectedSport}
+                                            onChange={(e) => {
+                                                setSelectedSport(e.target.value);
+                                                setSelectedLeague('all');
+                                            }}
+                                            className='appearance-none bg-mainblue border-2 border-cyan-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 w-full sm:min-w-[200px]'
+                                        >
+                                            <option value='all' className='bg-mainblue text-white'>All Sports</option>
+                                            {sports.map(sport => {
+                                                const count = games.filter(g => formatSportName(g.sport_name) === sport).length;
+                                                return (
+                                                    <option key={sport} value={sport} className='bg-mainblue text-white'>
+                                                        {sport} ({count})
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cyan-400 pointer-events-none' />
+                                    </div>
+                                    
+                                    {/* League Filter */}
                                     <div className='relative group'>
                                         <select
                                             id='league-filter'
                                             value={selectedLeague}
                                             onChange={(e) => setSelectedLeague(e.target.value)}
-                                            className='appearance-none bg-mainblue border-2 border-cyan-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 min-w-[200px]'
+                                            className='appearance-none bg-mainblue border-2 border-purple-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 w-full sm:min-w-[200px]'
                                         >
                                             <option value='all' className='bg-mainblue text-white'>All Leagues</option>
                                             {leagues.map(league => {
-                                                const count = games.filter(g => g.sport_title === league).length;
+                                                const sportFilteredGames = selectedSport === 'all' 
+                                                    ? games 
+                                                    : games.filter(g => formatSportName(g.sport_name) === selectedSport);
+                                                const count = sportFilteredGames.filter(g => g.sport_title === league).length;
                                                 return (
                                                     <option key={league} value={league} className='bg-mainblue text-white'>
                                                         {league} ({count})
@@ -326,15 +373,19 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
                                                 );
                                             })}
                                         </select>
-                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cyan-400 pointer-events-none transition-transform duration-200 group-hover:translate-y-[-40%]' />
+                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 pointer-events-none' />
                                     </div>
                                     
-                                    {selectedLeague !== 'all' && (
+                                    {/* Clear All Filters Button */}
+                                    {(selectedSport !== 'all' || selectedLeague !== 'all') && (
                                         <button
-                                            onClick={() => setSelectedLeague('all')}
-                                            className='px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:from-cyan-500/20 hover:to-purple-500/20 hover:border-cyan-500/50 hover:text-cyan-300 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 animate-fadeIn'
+                                            onClick={() => {
+                                                setSelectedSport('all');
+                                                setSelectedLeague('all');
+                                            }}
+                                            className='px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:from-cyan-500/20 hover:to-purple-500/20 hover:border-cyan-500/50 hover:text-cyan-300 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 animate-fadeIn whitespace-nowrap'
                                         >
-                                            Clear
+                                            Clear All
                                         </button>
                                     )}
                                 </div>
@@ -346,7 +397,11 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
                     {filteredGames.length === 0 ? (
                         <div className='text-white text-center mx-8 py-12 animate-fadeIn'>
                             <div className='inline-block p-6 rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-900/30 border border-cyan-500/10'>
-                                <p className='text-lg text-gray-400'>No games available for <span className='text-cyan-400 font-semibold'>{selectedLeague}</span></p>
+                                <p className='text-lg text-gray-400'>
+                                    No games available
+                                    {selectedSport !== 'all' && <> for <span className='text-cyan-400 font-semibold'>{selectedSport}</span></>}
+                                    {selectedLeague !== 'all' && <> in <span className='text-purple-400 font-semibold'>{selectedLeague}</span></>}
+                                </p>
                             </div>
                         </div>
                     ) : (
