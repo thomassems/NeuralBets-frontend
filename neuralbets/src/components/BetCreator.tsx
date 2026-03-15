@@ -5,6 +5,8 @@ import { unselectBet } from './LiveOdds';
 import AuthModal from './AuthModal';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useWallet } from '../contexts/WalletContext';
+import { placeBet } from '../api/walletApi';
 
 interface BetCreatorProps {
     games: live_game[];
@@ -25,11 +27,14 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
     let gamesBetOn = getGamesBetOn(games, selectedBets);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [newestBetId, setNewestBetId] = useState<string | null>(null);
+    const [placingBet, setPlacingBet] = useState(false);
     const prevBetCountRef = useRef(0);
     
-    // Get authentication state
+    // Get authentication and wallet state
     const { currentUser } = useAuth();
+    const { wallet, refreshWallet } = useWallet();
     const isLoggedIn = !!currentUser;
     
     // Auto-scroll and animate ONLY when bets are added (not removed)
@@ -68,9 +73,10 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedBets, gamesBetOn.length]);
 
-    const handlePlaceBet = () => {
-        // Clear previous error
+    const handlePlaceBet = async () => {
+        // Clear previous messages
         setErrorMessage('');
+        setSuccessMessage('');
         const element = document.getElementById('confirm-bet-id');
         
         // Validate bet amount (check for 0, empty, or falsy values)
@@ -97,9 +103,55 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
             return;
         }
         
-        // If all validations pass, place the bet
-        console.log('Placing bet:', { betAmount, gamesBetOn });
-        // TODO: Actual bet placement logic here
+        // Check if wallet exists
+        if (!wallet) {
+            setErrorMessage('Wallet not found. Please select a challenge mode first.');
+            if (element) {
+                element.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        // Check sufficient balance
+        if (wallet.balance < betAmount) {
+            setErrorMessage(`Insufficient balance. You have $${wallet.balance.toFixed(2)} available.`);
+            if (element) {
+                element.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        // Place the bet
+        setPlacingBet(true);
+        try {
+            const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            await placeBet(currentUser.uid, betAmount, betId);
+            
+            // Refresh wallet to get updated balance
+            await refreshWallet();
+            
+            // Show success message
+            setSuccessMessage(`Bet placed successfully! $${betAmount.toFixed(2)} wagered.`);
+            
+            // Clear bet slip after successful placement
+            setTimeout(() => {
+                selectedBets.forEach((betId: string) => {
+                    unselectBet(betId);
+                });
+                setSelectedBets(new Set());
+                setBetAmount(0);
+                setSuccessMessage('');
+            }, 2000);
+            
+        } catch (err: any) {
+            console.error('Error placing bet:', err);
+            setErrorMessage(err.message || 'Failed to place bet. Please try again.');
+            if (element) {
+                element.classList.remove('hidden');
+            }
+        } finally {
+            setPlacingBet(false);
+        }
     };
 
     return (
@@ -212,11 +264,32 @@ const BetCreator = ({ games, selectedBets, setSelectedBets, betAmount, setBetAmo
                 </div>
             )}
             
+            {/* Success message display */}
+            {successMessage && (
+                <div className='text-center text-xs mt-4 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 animate-fadeIn'>
+                    <p className='text-green-400'>{successMessage}</p>
+                </div>
+            )}
+            
             <button 
                 onClick={handlePlaceBet}
-                className='mt-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 p-5 w-full mb-0 hover:cursor-pointer transition-all duration-200 font-semibold text-white transform hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-cyan-500/50'
+                disabled={placingBet}
+                className={`
+                    mt-4 p-5 w-full mb-0 transition-all duration-200 font-semibold text-white
+                    ${placingBet 
+                        ? 'bg-gray-600 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 hover:cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-cyan-500/50'
+                    }
+                `}
             >
-                Confirm Bet
+                {placingBet ? (
+                    <span className='flex items-center justify-center gap-2'>
+                        <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white'></div>
+                        Placing Bet...
+                    </span>
+                ) : (
+                    'Confirm Bet'
+                )}
             </button>
             </div>
         </div>
