@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, useInView, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { LiveIndicator } from './LiveIndicator';
 import AuthModal from './AuthModal';
 import {
@@ -322,9 +323,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                     <Reveal>
                         <div className='grid grid-cols-2 md:grid-cols-4 gap-8 text-center'>
                             {[
-                                { value: <AnimatedCounter target={12} suffix='K+' />, label: 'Simulated Bets Placed' },
-                                { value: <AnimatedCounter target={4} suffix='+' />, label: 'Sports Covered' },
-                                { value: <AnimatedCounter target={50} suffix='+' />, label: 'Leagues Available' },
+                                { value: <AnimatedCounter target={2} suffix='K+' />, label: 'Simulated Bets Placed' },
+                                { value: <AnimatedCounter target={10} suffix='+' />, label: 'Sports Covered' },
+                                { value: <AnimatedCounter target={75} suffix='+' />, label: 'Leagues Available' },
                                 { value: <AnimatedCounter target={100} prefix='$' suffix='K+' />, label: 'Simulated Volume' },
                             ].map((stat, i) => (
                                 <div key={i}>
@@ -460,7 +461,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                                             </div>
                                         ) : (
                                             <p className='text-gray-500 text-xs leading-relaxed'>
-                                                Pick any starting balance up to $1M. No target — just practice your way.
+                                                Pick any starting balance up to $1M. No target, just practice your way.
                                             </p>
                                         )}
                                     </TiltCard>
@@ -769,6 +770,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                 </div>
             </section>
 
+            {/* ── QUICK LINKS ────────────────────────────────── */}
+            <section className='relative py-16 px-8 border-t border-white/[0.04]'>
+                <div className='max-w-4xl mx-auto'>
+                    <Reveal>
+                        <div className='flex flex-wrap justify-center gap-x-10 gap-y-4'>
+                            {[
+                                { label: 'Terms of Service', to: '/terms' },
+                                { label: 'Privacy Policy', to: '/privacy' },
+                                { label: 'Responsible Gaming', to: '/responsible-gaming' },
+                                { label: 'Contact Us', to: '/contact' },
+                            ].map((link, i) => (
+                                <Link
+                                    key={i}
+                                    to={link.to}
+                                    className='text-gray-500 hover:text-cyan-400 transition-colors text-sm'
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </Reveal>
+                </div>
+            </section>
+
             {/* ── FINAL CTA ────────────────────────────────────── */}
             <section className='relative py-28 px-8 border-t border-white/[0.04] overflow-hidden'>
                 <div className='absolute inset-0 bg-gradient-to-t from-cyan-500/[0.03] via-transparent to-transparent' />
@@ -801,7 +826,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ liveEventsCount }) => {
                             Ready to test your edge?
                         </h2>
                         <p className='text-gray-400 text-lg mb-10 max-w-md mx-auto'>
-                            Real odds, simulated stakes, and tools that actually make you better. Start free — no card, no catch.
+                            Real odds, simulated stakes, and tools that actually make you better.
                         </p>
                         <motion.button
                             onClick={openSignup}
