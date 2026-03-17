@@ -1,9 +1,10 @@
-import { Clock, ChevronDown } from 'lucide-react';
+import { Clock, ChevronDown, Star } from 'lucide-react';
 import { LiveIndicator } from './LiveIndicator';
 import { live_game } from '../types/Livegame';
 import BetCreator from './BetCreator';
 import { convertBettingOdds } from '../utils/oddsUtils';
 import { formatSportName, formatTimeToEST } from '../utils/formatUtils';
+import { getSportIcon, getFavoriteSports, toggleFavoriteSport } from '../utils/sportIcons';
 import { useState, useMemo, useEffect } from 'react';
 
 
@@ -135,17 +136,34 @@ import { useState, useMemo, useEffect } from 'react';
     }
  }
  
- function listGames(games: live_game[], selectedBets: any, setSelectedBets:any, betAmount: number, setBetAmount: any) {
+ function listGames(games: live_game[], selectedBets: any, setSelectedBets:any, betAmount: number, setBetAmount: any, favorites: string[] = []) {
+    // Group games by sport (each sport shown once as header, then its games below)
+    const bySport = games.reduce<Record<string, live_game[]>>((acc, game) => {
+        const sport = formatSportName(game.sport_name);
+        if (!acc[sport]) acc[sport] = [];
+        acc[sport].push(game);
+        return acc;
+    }, {});
+    const sportOrder = Array.from(new Set(games.map(g => formatSportName(g.sport_name)))).sort((a, b) => {
+        const aFav = favorites.includes(a);
+        const bFav = favorites.includes(b);
+        if (aFav && !bFav) return -1;
+        if (!aFav && bFav) return 1;
+        return a.localeCompare(b);
+    });
 
     return (
         <div className='flex justify-start gap-4 w-full'>
         <div className='flex-grow max-w-4xl'>
-            {games.map(game => 
-            <div key={game.id} className='text-white m-8'>
-                <div className='display flex justify-between mb-5'>
-                    <div className='text-white text-[20px] text-bold'>{formatSportName(game.sport_name)}</div>
-                </div>  
-                <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm mb-5 rounded-xl'>
+            {sportOrder.map(sport => (
+            <div key={sport} className='text-white m-8'>
+                <div className='flex items-center gap-2 mb-5'>
+                    <span className='text-cyan-400'>{getSportIcon(sport, 'w-5 h-5')}</span>
+                    <h2 className='text-white text-[20px] font-bold'>{sport}</h2>
+                </div>
+                {bySport[sport].map(game => (
+                <div key={game.id} className='mb-5'>
+                <div className='bg-gradient-to-r from-gray-900/50 to-gray-900/30 border border-cyan-500/10 hover:border-cyan-500/30 transition-all p-0 overflow-hidden backdrop-blur-sm rounded-xl'>
                     <div className='flex justify-between items-start mx-5 my-4'>    
                         <div className='flex space-x-3 items-center'>
                             <div className='border-[#c084fc] border text-[#c084fc] rounded-md px-2 py-1 text-xs'>{game.sport_title}</div>
@@ -181,7 +199,10 @@ import { useState, useMemo, useEffect } from 'react';
                     </button>
                     </div>
                 </div>
-            </div>)}
+                </div>
+                ))}
+            </div>
+            ))}
         </div>
         <div id='bet-tab' className='w-0 transition-all text-white sticky top-20 h-fit'>
             <div className='max-h-[calc(100vh-6rem)] overflow-y-auto'>
@@ -208,38 +229,55 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
     const [betAmount, setBetAmount] = useState(0);
     const [selectedSport, setSelectedSport] = useState<string>('all');
     const [selectedLeague, setSelectedLeague] = useState<string>('all');
-    
-    // Extract unique sports from games
+    const [favorites, setFavorites] = useState<string[]>(getFavoriteSports());
+    const [forceShowAll, setForceShowAll] = useState(false);
+
+    // Available sports for "has games" checks
+    const availableSports = useMemo(() =>
+        Array.from(new Set(games.map(game => formatSportName(game.sport_name)))),
+        [games]
+    );
+
+    // Extract unique sports from games, sorted with favorites first
     const sports = useMemo(() => {
-        const uniqueSports = new Set(games.map(game => formatSportName(game.sport_name)));
-        return Array.from(uniqueSports).sort();
-    }, [games]);
+        const uniqueSports = Array.from(new Set(games.map(game => formatSportName(game.sport_name))));
+        return uniqueSports.sort((a, b) => {
+            const aFav = favorites.includes(a);
+            const bFav = favorites.includes(b);
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            return a.localeCompare(b);
+        });
+    }, [games, favorites]);
     
-    // Extract unique leagues from games (filtered by sport if selected)
+    // When favorites exist and not forcing "all", show all favorited sports; otherwise use selectedSport
+    const showingFavorites = favorites.length > 0 && !forceShowAll;
+
+    // Extract unique leagues from games (filtered by sport)
     const leagues = useMemo(() => {
-        const filteredByMaybeSport = selectedSport === 'all' 
-            ? games 
-            : games.filter(game => formatSportName(game.sport_name) === selectedSport);
-        const uniqueLeagues = new Set(filteredByMaybeSport.map(game => game.sport_title));
+        const filteredBySport = showingFavorites
+            ? games.filter(game => favorites.includes(formatSportName(game.sport_name)))
+            : (selectedSport === 'all' ? games : games.filter(game => formatSportName(game.sport_name) === selectedSport));
+        const uniqueLeagues = new Set(filteredBySport.map(game => game.sport_title));
         return Array.from(uniqueLeagues).sort();
-    }, [games, selectedSport]);
-    
-    // Filter games based on selected sport and league
+    }, [games, selectedSport, favorites, showingFavorites]);
+
+    // Filter games: when favorites exist show all favorites; else use selectedSport
     const filteredGames = useMemo(() => {
         let filtered = games;
-        
-        // Filter by sport first
-        if (selectedSport !== 'all') {
+
+        if (showingFavorites) {
+            filtered = filtered.filter(game => favorites.includes(formatSportName(game.sport_name)));
+        } else if (selectedSport !== 'all') {
             filtered = filtered.filter(game => formatSportName(game.sport_name) === selectedSport);
         }
-        
-        // Then filter by league
+
         if (selectedLeague !== 'all') {
             filtered = filtered.filter(game => game.sport_title === selectedLeague);
         }
-        
+
         return filtered;
-    }, [games, selectedSport, selectedLeague]);
+    }, [games, selectedSport, selectedLeague, favorites, showingFavorites]);
     
     // Clear selected bets when sport or league filter changes
     useEffect(() => {
@@ -277,7 +315,7 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
             betTab.classList.add('w-0');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSport, selectedLeague]);
+    }, [selectedSport, selectedLeague, favorites, forceShowAll]);
     
     // Show structure immediately, even while loading
     const showContent = !loading || games.length > 0;
@@ -305,91 +343,140 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
             {showContent && games.length > 0 && (
                 <>
                     {/* Filter Section */}
-                    <div className='mx-8 mb-8 mt-4'>
-                        <div className='relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-cyan-500/40'>
-                            <div className='absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-purple-500/0 animate-pulse'></div>
-                            
-                            <div className='relative flex flex-col gap-4'>
-                                <div className='flex items-center gap-3'>
-                                    <div className='flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30'>
-                                        <svg className='w-5 h-5 text-cyan-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z' />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 className='text-white font-semibold text-lg'>Filter Events</h3>
-                                        <p className='text-gray-400 text-xs'>
-                                            {selectedSport === 'all' && selectedLeague === 'all'
-                                                ? `Showing all ${games.length} events`
-                                                : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'}${selectedSport !== 'all' ? ` in ${selectedSport}` : ''}${selectedLeague !== 'all' ? ` - ${selectedLeague}` : ''}`
-                                            }
-                                        </p>
-                                    </div>
+                    <div className='mx-8 mb-8 mt-4 space-y-4'>
+                        {/* Sport Buttons */}
+                        <div className='flex flex-wrap gap-2'>
+                            {/* All Sports button */}
+                            <button
+                                onClick={() => {
+                                    setForceShowAll(true);
+                                    setSelectedSport('all');
+                                    setSelectedLeague('all');
+                                }}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 ${
+                                    !showingFavorites && selectedSport === 'all'
+                                        ? 'bg-cyan-500/15 border-cyan-500/50 text-cyan-400 shadow-lg shadow-cyan-500/10'
+                                        : 'bg-gray-900/30 border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
+                                }`}
+                            >
+                                <svg className='w-4 h-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                                    <circle cx='12' cy='12' r='10' />
+                                    <path d='M2 12h20' />
+                                    <path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' />
+                                </svg>
+                                All
+                                <span className={`text-xs px-1.5 py-0.5 rounded-md ${selectedSport === 'all' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-white/5 text-gray-500'}`}>
+                                    {games.length}
+                                </span>
+                            </button>
+
+                            {/* Divider if there are favorites */}
+                            {favorites.length > 0 && sports.some(s => favorites.includes(s)) && (
+                                <div className='flex items-center px-1'>
+                                    <div className='w-px h-6 bg-white/10' />
                                 </div>
-                                
-                                <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3'>
-                                    {/* Sport Filter */}
-                                    <div className='relative group'>
-                                        <select
-                                            id='sport-filter'
-                                            value={selectedSport}
-                                            onChange={(e) => {
-                                                setSelectedSport(e.target.value);
-                                                setSelectedLeague('all');
-                                            }}
-                                            className='appearance-none bg-mainblue border-2 border-cyan-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 w-full sm:min-w-[200px]'
-                                        >
-                                            <option value='all' className='bg-mainblue text-white'>All Sports</option>
-                                            {sports.map(sport => {
-                                                const count = games.filter(g => formatSportName(g.sport_name) === sport).length;
-                                                return (
-                                                    <option key={sport} value={sport} className='bg-mainblue text-white'>
-                                                        {sport} ({count})
-                                                    </option>
-                                                );
-                                            })}
-                                        </select>
-                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cyan-400 pointer-events-none' />
-                                    </div>
-                                    
-                                    {/* League Filter */}
-                                    <div className='relative group'>
-                                        <select
-                                            id='league-filter'
-                                            value={selectedLeague}
-                                            onChange={(e) => setSelectedLeague(e.target.value)}
-                                            className='appearance-none bg-mainblue border-2 border-purple-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 w-full sm:min-w-[200px]'
-                                        >
-                                            <option value='all' className='bg-mainblue text-white'>All Leagues</option>
-                                            {leagues.map(league => {
-                                                const sportFilteredGames = selectedSport === 'all' 
-                                                    ? games 
-                                                    : games.filter(g => formatSportName(g.sport_name) === selectedSport);
-                                                const count = sportFilteredGames.filter(g => g.sport_title === league).length;
-                                                return (
-                                                    <option key={league} value={league} className='bg-mainblue text-white'>
-                                                        {league} ({count})
-                                                    </option>
-                                                );
-                                            })}
-                                        </select>
-                                        <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 pointer-events-none' />
-                                    </div>
-                                    
-                                    {/* Clear All Filters Button */}
-                                    {(selectedSport !== 'all' || selectedLeague !== 'all') && (
+                            )}
+
+                            {/* Sport buttons */}
+                            {sports.map(sport => {
+                                const count = games.filter(g => formatSportName(g.sport_name) === sport).length;
+                                const isFav = favorites.includes(sport);
+                                const isSelected = showingFavorites ? isFav : selectedSport === sport;
+
+                                return (
+                                    <div key={sport} className='relative group/sport flex'>
                                         <button
                                             onClick={() => {
-                                                setSelectedSport('all');
-                                                setSelectedLeague('all');
+                                                if (showingFavorites) {
+                                                    const nextFavs = toggleFavoriteSport(sport);
+                                                    setFavorites(nextFavs);
+                                                    setForceShowAll(false);
+                                                    if (nextFavs.length > 0) setSelectedLeague('all');
+                                                } else {
+                                                    setSelectedSport(selectedSport === sport ? 'all' : sport);
+                                                    setSelectedLeague('all');
+                                                }
                                             }}
-                                            className='px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 text-cyan-400 text-sm font-medium hover:from-cyan-500/20 hover:to-purple-500/20 hover:border-cyan-500/50 hover:text-cyan-300 transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 animate-fadeIn whitespace-nowrap'
+                                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 ${
+                                                isSelected
+                                                    ? 'bg-cyan-500/15 border-cyan-500/50 text-cyan-400 shadow-lg shadow-cyan-500/10'
+                                                    : 'bg-gray-900/30 border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
+                                            }`}
                                         >
-                                            Clear All
+                                            <span className={isSelected ? 'text-cyan-400' : 'text-gray-500 group-hover/sport:text-gray-300 transition-colors'}>
+                                                {getSportIcon(sport, 'w-4 h-4')}
+                                            </span>
+                                            {sport}
+                                            <span className={`text-xs px-1.5 py-0.5 rounded-md ${isSelected ? 'bg-cyan-500/20 text-cyan-400' : 'bg-white/5 text-gray-500'}`}>
+                                                {count}
+                                            </span>
+                                            {isFav && (
+                                                <Star className='w-3 h-3 text-yellow-400 fill-yellow-400' />
+                                            )}
                                         </button>
-                                    )}
-                                </div>
+                                        {/* Favorite toggle on hover */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const wasFav = favorites.includes(sport);
+                                                const nextFavs = toggleFavoriteSport(sport);
+                                                setFavorites(nextFavs);
+                                                setForceShowAll(false);
+                                                setSelectedLeague('all');
+                                                if (wasFav && nextFavs.length === 0) {
+                                                    setSelectedSport('all');
+                                                }
+                                            }}
+                                            className='absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-800 border border-white/10 flex items-center justify-center opacity-0 group-hover/sport:opacity-100 transition-opacity duration-200 hover:border-yellow-500/50 z-10'
+                                            title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                                        >
+                                            <Star className={`w-2.5 h-2.5 ${isFav ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* League dropdown + info row */}
+                        <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3'>
+                            <div className='relative group'>
+                                <select
+                                    id='league-filter'
+                                    value={selectedLeague}
+                                    onChange={(e) => setSelectedLeague(e.target.value)}
+                                    className='appearance-none bg-mainblue border-2 border-purple-500/30 text-white rounded-xl px-5 py-2.5 pr-12 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 cursor-pointer font-medium hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 w-full sm:min-w-[220px]'
+                                >
+                                    <option value='all' className='bg-mainblue text-white'>All Leagues</option>
+                                    {leagues.map(league => {
+                                        const sportFilteredGames = showingFavorites
+                                            ? games.filter(g => favorites.includes(formatSportName(g.sport_name)))
+                                            : (selectedSport === 'all' ? games : games.filter(g => formatSportName(g.sport_name) === selectedSport));
+                                        const count = sportFilteredGames.filter(g => g.sport_title === league).length;
+                                        return (
+                                            <option key={league} value={league} className='bg-mainblue text-white'>
+                                                {league} ({count})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                                <ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 pointer-events-none' />
                             </div>
+
+                            <p className='text-gray-500 text-xs'>
+                                {!showingFavorites && selectedSport === 'all' && selectedLeague === 'all'
+                                    ? `Showing all ${games.length} events`
+                                    : `${filteredGames.length} ${filteredGames.length === 1 ? 'event' : 'events'}${showingFavorites ? ` in ${favorites.join(', ')}` : selectedSport !== 'all' ? ` in ${selectedSport}` : ''}${selectedLeague !== 'all' ? ` — ${selectedLeague}` : ''}`
+                                }
+                            </p>
+
+                            {(showingFavorites || selectedSport !== 'all' || selectedLeague !== 'all') && (
+                                <button
+                                    onClick={() => { setForceShowAll(true); setSelectedSport('all'); setSelectedLeague('all'); }}
+                                    className='px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200 whitespace-nowrap'
+                                >
+                                    Clear Filters
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -399,14 +486,15 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
                             <div className='inline-block p-6 rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-900/30 border border-cyan-500/10'>
                                 <p className='text-lg text-gray-400'>
                                     No games available
-                                    {selectedSport !== 'all' && <> for <span className='text-cyan-400 font-semibold'>{selectedSport}</span></>}
+                                    {showingFavorites && <> for <span className='text-cyan-400 font-semibold'>{favorites.join(', ')}</span></>}
+                                    {!showingFavorites && selectedSport !== 'all' && <> for <span className='text-cyan-400 font-semibold'>{selectedSport}</span></>}
                                     {selectedLeague !== 'all' && <> in <span className='text-purple-400 font-semibold'>{selectedLeague}</span></>}
                                 </p>
                             </div>
                         </div>
                     ) : (
                         <ul className='animate-fadeIn'>
-                            {listGames(filteredGames, selectedBets, setSelectedBets, betAmount, setBetAmount)}
+                            {listGames(filteredGames, selectedBets, setSelectedBets, betAmount, setBetAmount, favorites)}
                         </ul>
                     )}
                 </>
