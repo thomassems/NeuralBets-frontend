@@ -232,12 +232,6 @@ const LiveOdds = ({ games, loading, error }: LiveOddsProps) => {
     const [favorites, setFavorites] = useState<string[]>(getFavoriteSports());
     const [forceShowAll, setForceShowAll] = useState(false);
 
-    // Available sports for "has games" checks
-    const availableSports = useMemo(() =>
-        Array.from(new Set(games.map(game => formatSportName(game.sport_name)))),
-        [games]
-    );
-
     // Extract unique sports from games, sorted with favorites first
     const sports = useMemo(() => {
         const uniqueSports = Array.from(new Set(games.map(game => formatSportName(game.sport_name))));
